@@ -10,7 +10,7 @@
 #include "Semicolon.h"
 #include "Sticks.h"
 #include "Ampersand.h"
-//#include "LineCmd.h"
+#include "LineCmd.h"
 #include "IndivCmd.h"
 
 // parse the line of input into a vector of the commands and their connectors in order of appearance
@@ -79,7 +79,13 @@ char** parse(string input) {
 			argv[currarg] = ctemp;
 			ctemp = blank;
 			currarg++;
-		}else {// none of the possible connectors
+		}else if(strcmp(ctemp, "exit") == 0) {
+			argv[currarg] = ctemp;
+			ctemp = blank;
+			currarg++;
+			// special case for "exit" to either fail to reach cmd exit or execute exit, so other cmds after are insignificant
+			break;
+		}else{// none of the possible connectors
 			strcat(ctemp, inputcopy.at(i)); // => ctemp += inputcopy.at(i);
 		}
 
@@ -123,7 +129,7 @@ void execute(char* argv[], int argc) { // passed in a single command in array fo
 			else if (tpid == 0) {//# child running
 				; // do nothing and wait for child
 			}
-			else #child done
+			else //#child done
 				break; // to execute parent
 		}
 	}
@@ -138,10 +144,12 @@ int main( )
 {
 	unsigned i = 0;
 	string comment = "";
+	string input = "";
 	char** args[256];
 	while (1) {
 		// prompt and take in input 
-		read -p "$" input
+		cout << "$";
+		input = getline();
 		
 		//check for comments and separate
 		if ((i = input.find("#")) != string::npos) { // there exists a #

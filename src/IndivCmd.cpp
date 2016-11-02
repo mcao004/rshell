@@ -7,6 +7,9 @@ IndivCmd::IndivCmd(char** argv)
 
 // has the ability to execute the command that it stores in argv
 void IndivCmd::execute() {
+	if (strcmp(argv[0],"exit")== 0)
+		exit(0);
+
 	pid_t pid;
 	pid_t tpid;
 	executed = false;
@@ -28,8 +31,9 @@ void IndivCmd::execute() {
 				exit(1);
 			} else if (tpid == 0) { // child running
 				;
-			} else // child done
+			} else {// child done
 				break;
+			}
 		}
 	}
 	// if parent reaches this point, then
