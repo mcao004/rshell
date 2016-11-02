@@ -1,7 +1,14 @@
 
-#include "IndivCmd.cpp"
+#include "IndivCmd.h"
+#include "LineCmd.h"
+#include "Ampersand.h"
+#include "Sticks.h"
+#include "Semicolon.h"
+
 #include <string>
 #include <iostream>
+
+using namespace std;
 
 int main() {
 	char line[1024];
@@ -19,10 +26,42 @@ int main() {
 //	cout << argv[1] << endl;
 //	execvp(argv[0], argv);
 
-	IndivCmd* test = new IndivCmd(argv);
-	test->execute();
-	IndivCmd* test2 = new IndivCmd(argv);
-	LineCmd* line1 = new LineCmd(arg
+	// test for ls -l
+	IndivCmd* lsl = new IndivCmd(argv);
+	cout << "Cmd 1: ";
+	lsl->execute();
+	cout << endl;
+
+	// first linecmd test with empty linecmd
+	LineCmd* line1 = new LineCmd();
+	cout << "Test 1: no cmds";
+	line1->execute();
+	cout << endl;
+
+	// with one cmd
+	line1->add(lsl);
+	cout << "Test 2: one cmd";
+	line1->execute();
+	cout << endl;
+
+	// with two cmds, no connector
+	line1->add(lsl);
+	cout << "Test3: ls -l ls -l = No such file or directory";
+	line1->execute();
+	cout << endl;
+
+	// with two cmds, one semicolon btw
+	LineCmd* line2 = new LineCmd();
+	line2->add(lsl);
+	Semicolon* s = new Semicolon();
+	line2->add(s);
+	line2->add(lsl);
+	cout << "Test4: ls -l;ls -l: ";
+	line2->execute();
+	cout << endl;
+	
+
+	//IndivCmd* test2 = new IndivCmd(argv);
 //	cout << "Hello Butts" << endl;
 
 	return 0;

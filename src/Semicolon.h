@@ -5,6 +5,7 @@
 
 class Semicolon : public Operand {
 	public:
+		Semicolon();
 		void execute();
 };
 #endif

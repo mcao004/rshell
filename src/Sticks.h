@@ -5,6 +5,7 @@
 
 class Sticks : public Operand {
 	public:
+		Sticks();
 		void execute();
 };
 #endif

@@ -4,6 +4,7 @@
 #include "Operand.h"
 class Ampersand : public Operand {
 	public:
+		Ampersand();
 		void execute();
 };
 #endif
