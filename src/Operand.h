@@ -7,5 +7,5 @@
 class Operand: public Cmd {
 	protected:
 		virtual void execute()= 0;
-}
+};
 #endif

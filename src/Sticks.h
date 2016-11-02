@@ -9,7 +9,7 @@ class Sticks : public Operand {
 			if (prev->fail())
 				next->execute();
 			else
-				exit();
+				exit(1);
 		}
-}
+};
 #endif

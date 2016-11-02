@@ -8,5 +8,5 @@ class Semicolon : public Operand {
 		void execute() {
 			next->execute();
 		}
-}
+};
 #endif

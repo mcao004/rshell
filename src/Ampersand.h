@@ -10,5 +10,5 @@ class Ampersand : public Operand {
 			else
 				next->execute();
 		}
-}
+};
 #endif
