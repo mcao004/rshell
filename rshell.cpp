@@ -10,7 +10,7 @@
 #include "Semicolon.h"
 #include "Sticks.h"
 #include "Ampersand.h"
-#include "LineCmd.h"
+//#include "LineCmd.h"
 #include "IndivCmd.h"
 
 // parse the line of input into a vector of the commands and their connectors in order of appearance

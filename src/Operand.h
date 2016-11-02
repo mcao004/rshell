@@ -5,7 +5,7 @@
 #include "Cmd.h"
 
 class Operand: public Cmd {
-	protected:
+	public:
 		virtual void execute()= 0;
 };
 #endif

@@ -21,6 +21,8 @@ int main() {
 
 	IndivCmd* test = new IndivCmd(argv);
 	test->execute();
+	IndivCmd* test2 = new IndivCmd(argv);
+	LineCmd* line1 = new LineCmd(arg
 //	cout << "Hello Butts" << endl;
 
 	return 0;

@@ -4,12 +4,7 @@
 #include "Operand.h"
 
 class Sticks : public Operand {
-	protected:
-		void execute() {
-			if (prev->fail())
-				next->execute();
-			else
-				exit(1);
-		}
+	public:
+		void execute();
 };
 #endif

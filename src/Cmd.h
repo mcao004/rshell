@@ -13,10 +13,12 @@
 using namespace std;
 
 class Cmd {
-	protected:
+	public:
 		Cmd* prev;
 		Cmd* next;
+		bool executed;
 
+		Cmd():prev(0), next(0), executed(false) {}
 		virtual void execute() = 0;
 };
 #endif

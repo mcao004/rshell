@@ -5,9 +5,11 @@ IndivCmd::IndivCmd(char** argv)
 :argv(argv)
 {}
 
+// has the ability to execute the command that it stores in argv
 void IndivCmd::execute() {
 	pid_t pid;
 	pid_t tpid;
+	executed = false;
 
 	pid = fork();
 	if(pid < 0) { // fail
@@ -30,5 +32,7 @@ void IndivCmd::execute() {
 				break;
 		}
 	}
+	// if parent reaches this point, then
+	executed = true; 
 	//cout << "Hello world" << endl;
 }

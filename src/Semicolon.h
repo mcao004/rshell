@@ -4,9 +4,7 @@
 #include "Operand.h"
 
 class Semicolon : public Operand {
-	protected:
-		void execute() {
-			next->execute();
-		}
+	public:
+		void execute();
 };
 #endif

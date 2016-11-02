@@ -3,12 +3,7 @@
 
 #include "Operand.h"
 class Ampersand : public Operand {
-	protected:
-		void execute() {
-			if (prev->fail())
-				exit(0);
-			else
-				next->execute();
-		}
+	public:
+		void execute();
 };
 #endif

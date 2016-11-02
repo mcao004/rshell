@@ -8,7 +8,9 @@ class LineCmd: public Cmd {
 		// will contain a linked list of commands
 		Cmd* first;
 		Cmd* last;
-		
+	public:	
+		LineCmd();
+		void add(Cmd* c); // adds a command to the linked list
 		void execute();
 };
 #endif
