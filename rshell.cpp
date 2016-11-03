@@ -4,14 +4,17 @@
 #include <unistd.h>
 #include <string>
 #include <cstring>
-//#include <boost/tokenizer.hpp>
+#include <boost/tokenizer.hpp>
+#include <vector>
 
 //including our own files
-#include "Semicolon.h"
-#include "Sticks.h"
-#include "Ampersand.h"
-#include "LineCmd.h"
-#include "IndivCmd.h"
+#include "src/Semicolon.cpp"
+#include "src/Sticks.cpp"
+#include "src/Ampersand.cpp"
+#include "src/LineCmd.cpp"
+#include "src/IndivCmd.cpp"
+
+using namespace std;
 
 // parse the line of input into a vector of the commands and their connectors in order of appearance
 char** parse(string input) {
@@ -19,154 +22,286 @@ char** parse(string input) {
 	string delim1 = ";";
 	string delim2 = "&&";
 	string delim3 = "||";
-	string b = "";
+	string b = "\0";
 
+	/*boost::char_separator<char> sep(";&|");
+	boost::tokenizer< boost::char_separator<char> > token (input, sep);
+	char** argv = new char* [1024];
+	
+	for(boost::tokenizer< boost::char_separator<char> >::iterator it = token.begin(); it!=token.end(); ++it) {
+		if (
+	}*/
+
+	/*char* rand = new char[128];
+	rand[0] = 'a';
+	rand[1] = 'b';
+	rand[2] = '\0';
+	cout << rand << endl;
+	rand[0] = '\0';
+	cout << rand << endl;
+	cout << strlen(rand) << endl;
+	*/	
 	char* semicolon = const_cast<char*>(delim1.c_str());
 	char* ampersand = const_cast<char*>(delim2.c_str());
 	char* stick = const_cast<char*>(delim3.c_str());
 	char* blank = const_cast<char*>(b.c_str());
 
-	char* argv[256];
-	char* ctemp = blank;
+	char** argv = new char *[1024];
+	char* ctemp = new char [128];
+	char* othertemp;
 	int currarg = 0;
-	for(int i = 0; i < input.length(); i++) {
-		if (inputcopy.at(i) == ';'){ // full connector
-			argv[currarg] = ctemp;
-			ctemp = blank;
+	for(int i = 0; i < input.length() && inputcopy.at(i) != 0; i++) {
+		//cout << inputcopy.at(i) << endl;
+		if(strcmp(ctemp, "exit") == 0) {
+			argv[currarg] = new char[128];
+			strcpy(argv[currarg], ctemp);
+			strcpy(ctemp,'\0');
+			memset(ctemp,'\0',20);
 			currarg++;
-			// add ';' into argv
-			argv[currarg] = semicolon;
-			currarg++;
-		}else if (inputcopy.at(i) == '&'){
-			if (i+1 != inputcopy.length() && inputcopy.at(i+1) == '&') {
-				// end the prev command
-				argv[currarg] = ctemp;
-				ctemp = blank;
+			// special case for "exit" to either fail to reach cmd exit or execute exit, so other cmds after are insignificant
+			break;
+		}else if (inputcopy.at(i) == ';'){ // full connector
+			if (strlen(ctemp) != 0){
+				argv[currarg] = new char[128];
+				strcpy(argv[currarg], ctemp);
+				memset(ctemp, '\0', 20);
+				ctemp[0] = '\0';
 				currarg++;
+			}// add ';' into argv
+			argv[currarg] = new char[128];
+			strcpy(argv[currarg], semicolon);
+			currarg++;
+		}else if (inputcopy.at(i)=='&'){
+			if (i+1 < inputcopy.length() && inputcopy.at(i+1) == '&') {
+				// end the prev command
+				if (strlen(ctemp) > 0) {// not a blank string
+					argv[currarg] = new char[128];
+					strcpy(argv[currarg],ctemp);
+					memset(ctemp, '\0', 20);
+					ctemp[0] = '\0';
+					currarg++;
+				}
 				// add another for the "&&"
-				argv[currarg] = ampersand;
+				argv[currarg] = new char[128];
+				strcpy(argv[currarg], ampersand);
 				currarg++;
 				// iterate i since we are using 2 characters
 				i++;
 			} else { // only single '&' present => still works in bash, so it'll work here too
 				// add last ctemp to argv
-				argv[currarg] = ctemp;
-				ctemp = blank;
-				currarg++;
-				// add another to represent the split
-				argv[currarg] = ampersand;
+				if (strlen(ctemp) > 0) {
+					argv[currarg] = new char[128];
+					strcpy(argv[currarg], ctemp);
+					memset(ctemp, '\0', 20);
+					ctemp[0] = '\0';
+					currarg++;
+				}// add another to represent the split
+				argv[currarg] = new char[128];
+				strcpy(argv[currarg], ampersand);
 				currarg++;
 			}
-		}else if (inputcopy.at(i) == '|'){
-			if (i + 1 < copyinput.length() && copyinput.at(i+1) == '&') { // this means "&&"
-				argv[currarg] = ctemp;
-				ctemp = blank;
-				currarg++;
-				// add "||" into argv
-				argv[currarg] = sticks;
+		}else if (inputcopy.at(i) =='|'){
+			if (i + 1 < inputcopy.length() && inputcopy.at(i+1) == '|') { // this means "&&"
+				if (strlen(ctemp) > 0) {
+					argv[currarg] = new char[128];
+					strcpy(argv[currarg], ctemp);
+					ctemp[0] = '\0';
+					memset(ctemp, '\0', 20);
+					currarg++;
+				}// add "||" into argv
+				argv[currarg] = new char[128];
+				strcpy(argv[currarg], stick);
 				currarg++;
 				// iterate i, so we continue normally
 				i++;
-			} else { // only single | present but still works in bash, so it'll work here too since the directions were somewhat vague
-				argv[currarg] = ctemp;
-				ctemp = blank;
-				currarg++;
-				// add '|' into argv
-				argv[currarg] = sticks;
+			} else { // onlym single | present but still works in bash, so it'll work here too since the directions were somewhat vague
+				if (strlen(ctemp) > 0) {
+					argv[currarg] = new char[128];
+					strcpy(argv[currarg], ctemp);
+					ctemp[0] = '\0';
+					memset(ctemp, '\0', 20);
+					currarg++;
+				}// add '|' into argv
+				argv[currarg] = new char[128];
+				strcpy(argv[currarg], stick);
 				currarg++;
 			}
-		}else if (inputcopy.at(i) == ' ') { // separate by spaces to parse each argument
-			argv[currarg] = ctemp;
-			ctemp = blank;
-			currarg++;
-		}else if(strcmp(ctemp, "exit") == 0) {
-			argv[currarg] = ctemp;
-			ctemp = blank;
-			currarg++;
-			// special case for "exit" to either fail to reach cmd exit or execute exit, so other cmds after are insignificant
-			break;
-		}else{// none of the possible connectors
-			strcat(ctemp, inputcopy.at(i)); // => ctemp += inputcopy.at(i);
+		}else if (inputcopy.at(i) == ' ' && strlen(ctemp) != 0) { // separate by spaces to parse each argument
+			argv[currarg] = new char[128];
+			strcpy(argv[currarg], ctemp);
+			ctemp[0] = '\0';
+			memset(ctemp,'\0', 20);
+			currarg++;	
+		}else { // none of the possible connectors
+			//strcat(ctemp, inputcopy.at(i)); // => ctemp += inputcopy.at(i);
+			ctemp[strlen(ctemp)] = inputcopy.at(i);
+			//strcat(ctemp,&inputcopy.at(i));
+			/*othertemp = malloc(strlen(ctemp) + 1);
+			strcpy(othertemp, ctemp);
+			strcat(othertemp, inputcopy.at(i));
+			ctemp = othertemp;
+			othertemp = blank;*/
 		}
 
-		if (currarg == 63)
+		if (currarg >= 63)
 			cout << "Too many arguments" << endl;
 	}
 	// when we reach the end the last string is likely still in ctemp
-	if (ctemp == blank) {
-		argv[currarg] = ctemp;
-		ctemp = blank;
+	if (strlen(ctemp) > 0) {
+		argv[currarg] = new char[128];
+		strcpy(argv[currarg],ctemp);
+		ctemp = '\0';
 		currarg++;
 	}
 	// add the NULL at the end of argv
-	argv[currarg] = NULL;
-
 	return argv;
 }
 
-void execute(char* argv[], int argc) { // passed in a single command in array form with the num of elements where argv[argc] = '\0'
-	pid_t pid;
-	pid_t tpid;
-
-	pid = fork();// #child's pid
-	if (pid < 0) { // negative or failed
-		perror("Error: fork failed\n" );
-		exit(1);
-	}	
-	else if (pid == 0) { //child process
-		if (execvp(*argv, argv) < 0) {
-			perror("Error: execvp failed\n");
-			exit(1);
-		}
-	}
-	else { // parent
-		while(1){
-			tpid = waitpid(pid, NULL, 0);
-			if (tpid == -1) { //then #perror check
-				perror("Error: Waitpid failed" );
-				exit(1);
-			}
-			else if (tpid == 0) {//# child running
-				; // do nothing and wait for child
-			}
-			else //#child done
-				break; // to execute parent
-		}
-	}
-	//object.execute();
-}
 
 /*unsigned findHash(string input) {
 	return input.find_first_of('#');
 }*/
 
+char* noSpaces(char* string) {
+	int j = 0; int i = 0;
+	char* result = string;
+	for (;i<strlen(string); i++){
+		if(string[i]!=' ')
+			result[j] = string[i];
+		else
+			j--;
+		j++;
+	}
+	result[j] = 0;
+	return result;
+}
+
 int main( )
 {
+	int i = 0;
+	string input = "";
+	char** args;
+	string comment = "";
+	while(1) {
+		cout << "$";
+		getline(cin, input);
+	
+		//check for comments and separate
+		i = input.find('#');
+		if (i < input.length()) { // there exists a #
+			comment = input.substr(i);
+			input = input.substr(0, i);
+		}
+		// parse remaining commands/argumets
+		args = parse(input);
+		
+		
+
+		cout << "Starting to segment args" << endl;
+		
+		LineCmd* l = new LineCmd(comment);
+		int curr = 0;
+		int cmdsize = 0;
+		char** cmdArgs = new char*[1024];
+		// construct the lineCmd from the arguments provided
+		/*while (args[curr] != NULL) {
+			cout << "$$: " << args[curr] << endl;
+			curr++;
+		}*/
+		vector<Cmd*> v;
+		while (args[curr] != 0) {
+			args[curr] = noSpaces(args[curr]);
+			if (strcmp(args[curr], ";") == 0) {
+				cout << "Semicolon" << endl;
+				cmdArgs[cmdsize] = NULL;
+				cout << "cmdArgs: \"" << cmdArgs[0] << "\"" << endl;
+				v.push_back(new IndivCmd(cmdArgs));
+				cmdArgs = new char*[1024];
+				v.push_back(new Semicolon());
+				cmdsize = 0;
+			} else if (strcmp(args[curr], "||") == 0) {
+				cout << "Sticks" << endl;
+				cmdArgs[cmdsize] = NULL;
+				v.push_back(new IndivCmd(cmdArgs));
+				cmdArgs = new char*[1024];
+				v.push_back(new Sticks());
+				cmdsize = 0;
+			} else if (strcmp(args[curr], "&&") == 0) {
+				cout << "Ampersand" << endl;
+				cmdArgs[cmdsize] = NULL;
+				v.push_back(new IndivCmd(cmdArgs));
+				cmdArgs = new char*[1024];
+				v.push_back(new Ampersand());
+				cmdsize = 0;
+			} else {
+				cout << "Cmd/Arg: " << args[curr] << endl;
+				cmdArgs[cmdsize] = new char[128];
+				strcpy(cmdArgs[cmdsize],args[curr]);
+				cmdsize++;
+			}
+			curr++;
+		}
+		v.push_back(new IndivCmd(cmdArgs));
+
+		for (int m = 0; m < v.size(); m++) {
+			l->add(v.at(m));
+		}
+		cout << "After construction" << endl;
+		l->execute();
+	}
+
+	/* first try
 	unsigned i = 0;
+	int n = 0;
+	int startcmdi = 0;
+	char* currarg = "";
 	string comment = "";
 	string input = "";
-	char** args[256];
+	char** args;
+	LineCmd* l = 0;
 	while (1) {
 		// prompt and take in input 
 		cout << "$";
-		input = getline();
+		getline(cin,input);
 		
 		//check for comments and separate
-		if ((i = input.find("#")) != string::npos) { // there exists a #
-			comment = input.substr(i, string::npos);
+		i = input.find('#');
+		if (i < input.length()) { // there exists a #
+			comment = input.substr(i);
 			input = input.substr(0, i);
 		}
 		// parse remaining commands/argumets
 		args = parse(input);
 		
 		// split args into command and argument sections and build structure to hold them
-		
-		// if command is exit, exit
-
+		l = new LineCmd(comment);
+		n = 0;
+		startcmdi = 0; // start of the command's index
+		currarg = args[n];
+		while(currarg) {
+			if (strcmp(currarg,";") == 0) {
+				l->add(new IndivCmd(args[startcmdi, n]));
+				l->add(new Semicolon());
+				startcmdi = n+1;
+			} else if (strcmp(currarg,"&&") == 0) {
+				l->add(new IndivCmd(args[startcmdi, n]));
+				l->add(new Ampersand());
+				startcmdi = n+1;
+			} else if (strcmp(currarg, "||") == 0) {
+				l->add(new IndivCmd(args[startcmdi, n]));
+				l->add(new Sticks());
+				startcmdi = n+1;
+			}
+				
+			n++;
+			currarg = args[n];
+		}
 
 		// execute those commands
-		
-		execute(argv);
+		cout << "Executing" << endl;	
+		execute(args);
 		
 	}
+	delete [] args;
+	*/
 }

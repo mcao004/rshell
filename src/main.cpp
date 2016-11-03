@@ -15,7 +15,7 @@ int main() {
 	char *argv[64];
 	char *argv1[64];
 	char *argv2[64];
-
+	char* argv3[64];
 
 	//IndivCmd* test = new IndivCmd(argv);
 	string ls = "ls";
@@ -24,7 +24,8 @@ int main() {
 	string hello = "Hello world";
 	string mkdir = "mkdir";
 	string file = "file.txt";
-	
+	string git = "git";
+	string status = "status";
 	
 	argv[0] = const_cast<char*>(ls.c_str());
 	argv[1] = const_cast<char*>(l.c_str());
@@ -37,6 +38,10 @@ int main() {
 	argv2[0] = const_cast<char*>(mkdir.c_str());
 	argv2[1] = const_cast<char*>(file.c_str());
 	argv2[2] = NULL;
+
+	argv3[0] = const_cast<char*>(git.c_str());
+	argv3[1] = const_cast<char*>(status.c_str());
+	argv3[2] = NULL;
 
 //	cout << argv[0] << endl;
 //	cout << argv[1] << endl;
@@ -58,8 +63,13 @@ int main() {
 	//mk->execute();
 	//cout << endl;
 
+	IndivCmd* gitstatus = new IndivCmd(argv3);
+	cout << "Cmd gitstatus: ";
+	gitstatus->execute();
+	cout << endl;
+
 	// first linecmd test with empty linecmd
-	LineCmd* line1 = new LineCmd();
+	LineCmd* line1 = new LineCmd("");
 	cout << "Test 1: no cmds";
 	line1->execute();
 	cout << endl;
@@ -78,17 +88,15 @@ int main() {
 
 	// with two cmds, one semicolon btw
 	delete line1;	
-
 	//IndivCmd* i1 = IndivCmd(argv);
-	LineCmd* line2 = new LineCmd();
+	LineCmd* line2 = new LineCmd("");
 	line2->add(lsl);
 	Semicolon* s = new Semicolon();
 	line2->add(s);
-	line2->add(lsl);
-	cout << "Test4: ls -l;: ";
+	line2->add(mk);
+	cout << "Test4: ls -l;mkdir file.txt ";
 	line2->execute();
-	cout << endl;
-	
+	cout << endl;	
 
 	//IndivCmd* test2 = new IndivCmd(argv);
 //	cout << "Hello Butts" << endl;
