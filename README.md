@@ -28,6 +28,8 @@ README.md
 
 Copying.txt
 
+rshell.cpp
+
 ./src
 
 ./tests
@@ -62,12 +64,17 @@ Sticks.h
 
 main.cpp
 
-rshell.cpp
+
 ```
 ```
 /tests
 
 single_command.sh
+
+commented_command.sh
+
+multi_command.sh
+exit.sh
 ```
 
 ##Instructions to run on your machine after you clone it
