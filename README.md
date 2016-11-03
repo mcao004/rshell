@@ -88,3 +88,6 @@ exit.sh
 4. Call `rshell`
 
 
+##BUGS
+
+1. Sometimes executes a command twice.
