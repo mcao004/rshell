@@ -1,12 +1,13 @@
 OBJS = Ampersand.o IndivCmd.o LineCmd.o Semicolon.o Sticks.o
-CPP = src/rshell.cpp src/Ampersand.cpp src/IndivCmd.cpp src/LineCmd.cpp src/Semicolon.cpp src/Sticks.cpp  
+CPP = rshell.cpp src/Ampersand.cpp src/IndivCmd.cpp src/LineCmd.cpp src/Semicolon.cpp src/Sticks.cpp  
 CC = g++
 FLAGS = -Wall -Werror -ansi -pedantic
 
-all: 
-	$(CC) $(FLAGS) src/main.cpp $(CCP)
+all: rshell
+
 rshell: $(CPP)
-	$(CC) $(FLAGS) $(CPP) -o rshell
+	@mkdir -p bin
+	$(CC) $(FLAGS) $(CPP) -o bin/rshell
 clean:
 	/rm *.o *~ *.exe
 

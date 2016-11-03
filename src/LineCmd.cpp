@@ -23,7 +23,6 @@ void LineCmd::execute() {
 	// execute through the linked list
 	//executed = false;
 	Cmd* currCmd = first;
-	bool lastcmdexecuted = true;
 	while(currCmd != NULL) {
 		currCmd->execute();
 		currCmd=currCmd->next;
@@ -37,6 +36,5 @@ void LineCmd::execute() {
 	//if (next) // if there is another line after this one for some reason
 	//	next->execute();
 
-	cout << "LineCmd executed" << endl;
 		
 }

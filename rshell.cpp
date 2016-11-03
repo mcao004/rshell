@@ -8,11 +8,11 @@
 #include <vector>
 
 //including our own files
-#include "src/Semicolon.cpp"
-#include "src/Sticks.cpp"
-#include "src/Ampersand.cpp"
-#include "src/LineCmd.cpp"
-#include "src/IndivCmd.cpp"
+#include "src/Semicolon.h"
+#include "src/Sticks.h"
+#include "src/Ampersand.h"
+#include "src/LineCmd.h"
+#include "src/IndivCmd.h"
 
 using namespace std;
 
@@ -44,18 +44,15 @@ char** parse(string input) {
 	char* semicolon = const_cast<char*>(delim1.c_str());
 	char* ampersand = const_cast<char*>(delim2.c_str());
 	char* stick = const_cast<char*>(delim3.c_str());
-	char* blank = const_cast<char*>(b.c_str());
 
 	char** argv = new char *[1024];
 	char* ctemp = new char [128];
-	char* othertemp;
 	int currarg = 0;
-	for(int i = 0; i < input.length() && inputcopy.at(i) != 0; i++) {
+	for(unsigned i = 0; i < input.length() && inputcopy.at(i) != 0; i++) {
 		//cout << inputcopy.at(i) << endl;
 		if(strcmp(ctemp, "exit") == 0) {
 			argv[currarg] = new char[128];
 			strcpy(argv[currarg], ctemp);
-			strcpy(ctemp,'\0');
 			memset(ctemp,'\0',20);
 			currarg++;
 			// special case for "exit" to either fail to reach cmd exit or execute exit, so other cmds after are insignificant
@@ -143,8 +140,6 @@ char** parse(string input) {
 			othertemp = blank;*/
 		}
 
-		if (currarg >= 63)
-			cout << "Too many arguments" << endl;
 	}
 	// when we reach the end the last string is likely still in ctemp
 	if (strlen(ctemp) > 0) {
@@ -163,7 +158,7 @@ char** parse(string input) {
 }*/
 
 char* noSpaces(char* string) {
-	int j = 0; int i = 0;
+	int j = 0; unsigned i = 0;
 	char* result = string;
 	for (;i<strlen(string); i++){
 		if(string[i]!=' ')
@@ -178,7 +173,7 @@ char* noSpaces(char* string) {
 
 int main( )
 {
-	int i = 0;
+	unsigned i = 0;
 	string input = "";
 	char** args;
 	string comment = "";
@@ -195,10 +190,6 @@ int main( )
 		// parse remaining commands/argumets
 		args = parse(input);
 		
-		
-
-		cout << "Starting to segment args" << endl;
-		
 		LineCmd* l = new LineCmd(comment);
 		int curr = 0;
 		int cmdsize = 0;
@@ -212,29 +203,24 @@ int main( )
 		while (args[curr] != 0) {
 			args[curr] = noSpaces(args[curr]);
 			if (strcmp(args[curr], ";") == 0) {
-				cout << "Semicolon" << endl;
 				cmdArgs[cmdsize] = NULL;
-				cout << "cmdArgs: \"" << cmdArgs[0] << "\"" << endl;
 				v.push_back(new IndivCmd(cmdArgs));
 				cmdArgs = new char*[1024];
 				v.push_back(new Semicolon());
 				cmdsize = 0;
 			} else if (strcmp(args[curr], "||") == 0) {
-				cout << "Sticks" << endl;
 				cmdArgs[cmdsize] = NULL;
 				v.push_back(new IndivCmd(cmdArgs));
 				cmdArgs = new char*[1024];
 				v.push_back(new Sticks());
 				cmdsize = 0;
 			} else if (strcmp(args[curr], "&&") == 0) {
-				cout << "Ampersand" << endl;
 				cmdArgs[cmdsize] = NULL;
 				v.push_back(new IndivCmd(cmdArgs));
 				cmdArgs = new char*[1024];
 				v.push_back(new Ampersand());
 				cmdsize = 0;
 			} else {
-				cout << "Cmd/Arg: " << args[curr] << endl;
 				cmdArgs[cmdsize] = new char[128];
 				strcpy(cmdArgs[cmdsize],args[curr]);
 				cmdsize++;
@@ -243,10 +229,9 @@ int main( )
 		}
 		v.push_back(new IndivCmd(cmdArgs));
 
-		for (int m = 0; m < v.size(); m++) {
+		for (unsigned m = 0; m < v.size(); m++) {
 			l->add(v.at(m));
 		}
-		cout << "After construction" << endl;
 		l->execute();
 	}
 

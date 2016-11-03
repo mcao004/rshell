@@ -5,7 +5,6 @@ Semicolon::Semicolon()
 {}
 
 void Semicolon::execute() {
-	cout << "Executing Semicolon" << endl;
 	if (!prev) {// if there isnt a command before
 		perror("Error: no preceding command");
 		exit(1);

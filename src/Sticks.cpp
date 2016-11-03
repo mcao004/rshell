@@ -4,7 +4,7 @@
 Sticks::Sticks() {}
 
 void Sticks::execute() {
-	if (!prev->executed){
+	if (prev->executed){
 		executed = true;
 		next->execute();
 	}else{

@@ -7,9 +7,10 @@ IndivCmd::IndivCmd(char** argv)
 
 // has the ability to execute the command that it stores in argv
 void IndivCmd::execute() {
-	cout << "Executing: " << argv[0] << endl;
+	if (prev && !prev->executed){ // if prev didn't execute
+		exit(0);
+	}
 	if (strcmp(argv[0],"exit")== 0) {
-		cout << "Exiting" << endl;
 		exit(0);
 	}
 
@@ -23,10 +24,10 @@ void IndivCmd::execute() {
 		exit(1);
 	} else if (pid == 0) { // child
 		if (execvp(argv[0], argv) < 0) {
-			cout << "Arg 1 = " << argv[0] << endl;
+			executed = false;
+			//cout << "Arg 1 = " << argv[0] << endl;
 			perror("Error: execvp failed\n");
-			exit(1);
-		}
+		} executed = true;
 	} else {// parent process
 		while(1) {
 			tpid = waitpid(pid,NULL, 0);
@@ -41,6 +42,5 @@ void IndivCmd::execute() {
 		}
 	}
 	// if parent reaches this point, then
-	executed = true; 
-	cout << "Finished execution of " << argv[0] << endl;
+	//executed = true; 
 }
