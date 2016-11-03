@@ -7,7 +7,7 @@ COPYING.txt
 
 ##Github Repository
 
-https://github.com/mcao004/rshell/tree/exec
+https://github.com/mcao004/rshell
 
 
 ##Authors
