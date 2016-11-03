@@ -91,3 +91,5 @@ exit.sh
 ##BUGS
 
 1. Sometimes executes a command twice.
+
+2. Too long of input causes seg fult.
