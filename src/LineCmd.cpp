@@ -15,7 +15,7 @@ void LineCmd::add(Cmd* c) {
 		last->next = c;
 		c->prev = last;
 		last = c;
-		c->next = 0;
+		c->next = NULL;
 	}
 }
 

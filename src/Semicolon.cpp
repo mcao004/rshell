@@ -13,5 +13,5 @@ void Semicolon::execute() {
 		exit(1);
 	}
 	executed = true;
-	next->execute();
+	//next->execute();
 }

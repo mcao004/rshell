@@ -9,6 +9,6 @@ void Ampersand::execute() {
 		exit(0);
 	} else { // succeeded in executing, so next one can
 		executed = true;
-		next->execute();
+		//next->execute();
 	}
 }

@@ -50,10 +50,18 @@ char** parse(string input) {
 	int currarg = 0;
 	for(unsigned i = 0; i < input.length() && inputcopy.at(i) != 0; i++) {
 		//cout << inputcopy.at(i) << endl;
-		if(strcmp(ctemp, "exit") == 0) {
+		/*if (strcmp(ctemp, "test ") == 0 || strcmp(ctemp, "[ ") == 0) {
+			// if starts with [
+			if (strcmp(ctemp, "[ ") == 0) { // we need to find ]
+				
+				ctemp[strlen(ctemp)] = inputcopy.at(i);
+			} else { // starts with "test "
+				
+			}
+		} else*/ if(strcmp(ctemp, "exit") == 0) {
 			argv[currarg] = new char[128];
 			strcpy(argv[currarg], ctemp);
-			memset(ctemp,'\0',20);
+			memset(ctemp,'\0',128);
 			currarg++;
 			// special case for "exit" to either fail to reach cmd exit or execute exit, so other cmds after are insignificant
 			break;
@@ -61,7 +69,7 @@ char** parse(string input) {
 			if (strlen(ctemp) != 0){
 				argv[currarg] = new char[128];
 				strcpy(argv[currarg], ctemp);
-				memset(ctemp, '\0', 20);
+				memset(ctemp, '\0', 128);
 				ctemp[0] = '\0';
 				currarg++;
 			}// add ';' into argv
@@ -74,7 +82,7 @@ char** parse(string input) {
 				if (strlen(ctemp) > 0) {// not a blank string
 					argv[currarg] = new char[128];
 					strcpy(argv[currarg],ctemp);
-					memset(ctemp, '\0', 20);
+					memset(ctemp, '\0', 128);
 					ctemp[0] = '\0';
 					currarg++;
 				}
@@ -89,7 +97,7 @@ char** parse(string input) {
 				if (strlen(ctemp) > 0) {
 					argv[currarg] = new char[128];
 					strcpy(argv[currarg], ctemp);
-					memset(ctemp, '\0', 20);
+					memset(ctemp, '\0', 128);
 					ctemp[0] = '\0';
 					currarg++;
 				}// add another to represent the split
@@ -103,7 +111,7 @@ char** parse(string input) {
 					argv[currarg] = new char[128];
 					strcpy(argv[currarg], ctemp);
 					ctemp[0] = '\0';
-					memset(ctemp, '\0', 20);
+					memset(ctemp, '\0', 128);
 					currarg++;
 				}// add "||" into argv
 				argv[currarg] = new char[128];
@@ -116,7 +124,7 @@ char** parse(string input) {
 					argv[currarg] = new char[128];
 					strcpy(argv[currarg], ctemp);
 					ctemp[0] = '\0';
-					memset(ctemp, '\0', 20);
+					memset(ctemp, '\0', 128);
 					currarg++;
 				}// add '|' into argv
 				argv[currarg] = new char[128];
@@ -127,7 +135,7 @@ char** parse(string input) {
 			argv[currarg] = new char[128];
 			strcpy(argv[currarg], ctemp);
 			ctemp[0] = '\0';
-			memset(ctemp,'\0', 20);
+			memset(ctemp,'\0', 128);
 			currarg++;	
 		}else { // none of the possible connectors
 			//strcat(ctemp, inputcopy.at(i)); // => ctemp += inputcopy.at(i);
@@ -145,10 +153,14 @@ char** parse(string input) {
 	if (strlen(ctemp) > 0) {
 		argv[currarg] = new char[128];
 		strcpy(argv[currarg],ctemp);
-		ctemp = '\0';
+		ctemp[0] = '\0';
+		memset(ctemp,'\0',128);
 		currarg++;
 	}
 	// add the NULL at the end of argv
+	argv[currarg] = new char[128];
+	strcpy(argv[currarg], ctemp);
+	currarg++;
 	return argv;
 }
 
@@ -202,6 +214,11 @@ int main( )
 		vector<Cmd*> v;
 		while (args[curr] != 0) {
 			args[curr] = noSpaces(args[curr]);
+			/*if (strcmp(args[curr],"test") == 0) {
+				cmdArgs[cmdsize] = NULL;
+				v.push_back(new testCmd(
+				
+			} else*/ // will use when finished fixing the problem
 			if (strcmp(args[curr], ";") == 0) {
 				cmdArgs[cmdsize] = NULL;
 				v.push_back(new IndivCmd(cmdArgs));
