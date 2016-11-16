@@ -2,6 +2,7 @@
 #define __INDIVCMD_HH__
 
 #include <sys/wait.h>
+#include <sys/stat.h>
 
 using namespace std;
 
@@ -14,6 +15,7 @@ class IndivCmd : public Cmd {
 		char** argv;
 	public:
 		IndivCmd(char** argv);
+		~IndivCmd();
 		void execute();
 };
 

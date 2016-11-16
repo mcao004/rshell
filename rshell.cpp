@@ -22,6 +22,10 @@ char** parse(string input) {
 	string delim1 = ";";
 	string delim2 = "&&";
 	string delim3 = "||";
+	string delim4 = "(";
+	string delim5 = ")";
+	string delim6 = "[";
+	string delim7 = "]";
 	string b = "\0";
 
 	/*boost::char_separator<char> sep(";&|");
@@ -44,21 +48,68 @@ char** parse(string input) {
 	char* semicolon = const_cast<char*>(delim1.c_str());
 	char* ampersand = const_cast<char*>(delim2.c_str());
 	char* stick = const_cast<char*>(delim3.c_str());
+	char* startparenthesis = const_cast<char*>(delim4.c_str());
+	char* endparenthesis = const_cast<char*>(delim5.c_str());
+	char* startbracket = const_cast<char*>(delim6.c_str());
+	char* endbracket = const_cast<char*>(delim7.c_str());
 
 	char** argv = new char *[1024];
 	char* ctemp = new char [128];
 	int currarg = 0;
 	for(unsigned i = 0; i < input.length() && inputcopy.at(i) != 0; i++) {
 		//cout << inputcopy.at(i) << endl;
-		/*if (strcmp(ctemp, "test ") == 0 || strcmp(ctemp, "[ ") == 0) {
-			// if starts with [
-			if (strcmp(ctemp, "[ ") == 0) { // we need to find ]
 				
-				ctemp[strlen(ctemp)] = inputcopy.at(i);
-			} else { // starts with "test "
-				
+		if (inputcopy.at(i) == '[') {
+			if (strlen(ctemp) != 0){ // if ctemp is not empty add to argv** and clear
+				argv[currarg] = new char[128];
+				strcpy(argv[currarg], ctemp);
+				memset(ctemp, '\0', 128);
+				currarg++;
 			}
-		} else*/ if(strcmp(ctemp, "exit") == 0) {
+			// handling of starting parenthesis
+			argv[currarg] = new char[128];
+			strcpy(argv[currarg], startbracket);
+			currarg++;
+			// start parentheses now added to argv**
+		} else if (inputcopy.at(i) == ']') {
+			// if ctemp isnt empty
+			if (strlen(ctemp) != 0) {
+				argv[currarg] = new char[128];
+				strcpy(argv[currarg], ctemp);
+				memset(ctemp, '\0', 128);
+				currarg++;
+			}
+			// handling of closing parenthesis
+			argv[currarg] = new char[128];
+			strcpy(argv[currarg], endbracket);
+			currarg++;
+			// end parentheses now added to argv**
+		} else	if (inputcopy.at(i) == '(') {
+			if (strlen(ctemp) != 0){ // if ctemp is not empty add to argv** and clear
+				argv[currarg] = new char[128];
+				strcpy(argv[currarg], ctemp);
+				memset(ctemp, '\0', 128);
+				currarg++;
+			}
+			// handling of starting parenthesis
+			argv[currarg] = new char[128];
+			strcpy(argv[currarg], startparenthesis);
+			currarg++;
+			// start parentheses now added to argv**
+		} else if (inputcopy.at(i) == ')') {
+			// if ctemp isnt empty
+			if (strlen(ctemp) != 0) {
+				argv[currarg] = new char[128];
+				strcpy(argv[currarg], ctemp);
+				memset(ctemp, '\0', 128);
+				currarg++;
+			}
+			// handling of closing parenthesis
+			argv[currarg] = new char[128];
+			strcpy(argv[currarg], endparenthesis);
+			currarg++;
+			// end parentheses now added to argv**
+		} else if(strcmp(ctemp, "exit") == 0) {
 			argv[currarg] = new char[128];
 			strcpy(argv[currarg], ctemp);
 			memset(ctemp,'\0',128);
@@ -137,19 +188,12 @@ char** parse(string input) {
 			ctemp[0] = '\0';
 			memset(ctemp,'\0', 128);
 			currarg++;	
-		}else { // none of the possible connectors
-			//strcat(ctemp, inputcopy.at(i)); // => ctemp += inputcopy.at(i);
+		}else { // none of the possible connectors, so just add the current char to ctemp
 			ctemp[strlen(ctemp)] = inputcopy.at(i);
-			//strcat(ctemp,&inputcopy.at(i));
-			/*othertemp = malloc(strlen(ctemp) + 1);
-			strcpy(othertemp, ctemp);
-			strcat(othertemp, inputcopy.at(i));
-			ctemp = othertemp;
-			othertemp = blank;*/
 		}
 
 	}
-	// when we reach the end the last string is likely still in ctemp
+	// when we reach the end, the last string is likely still in ctemp
 	if (strlen(ctemp) > 0) {
 		argv[currarg] = new char[128];
 		strcpy(argv[currarg],ctemp);
@@ -212,6 +256,8 @@ int main( )
 			curr++;
 		}*/
 		vector<Cmd*> v;
+
+		// if restructured, would be recursive for intuitive parentheses within parentheses handling
 		while (args[curr] != 0) {
 			args[curr] = noSpaces(args[curr]);
 			/*if (strcmp(args[curr],"test") == 0) {
@@ -219,13 +265,16 @@ int main( )
 				v.push_back(new testCmd(
 				
 			} else*/ // will use when finished fixing the problem
-			if (strcmp(args[curr], ";") == 0) {
+			if (strcmp(args[curr], ";") == 0) { // for each delimiter, push_back the Cmd, and add the delimiter
+				// null terminate the char*
 				cmdArgs[cmdsize] = NULL;
+				// push back the previous cmd and then the operator
 				v.push_back(new IndivCmd(cmdArgs));
 				cmdArgs = new char*[1024];
 				v.push_back(new Semicolon());
+				// reset cmdsize (the size of cmdArgs)
 				cmdsize = 0;
-			} else if (strcmp(args[curr], "||") == 0) {
+			} else if (strcmp(args[curr], "||") == 0) { // same as before
 				cmdArgs[cmdsize] = NULL;
 				v.push_back(new IndivCmd(cmdArgs));
 				cmdArgs = new char*[1024];
@@ -237,13 +286,60 @@ int main( )
 				cmdArgs = new char*[1024];
 				v.push_back(new Ampersand());
 				cmdsize = 0;
-			} else {
+			} else if (strcmp(args[curr], "(") == 0) { // parentheses case
+				if (cmdsize != 0) { // some case handler where there is a cmd directly before the '('
+					cmdArgs[cmdsize] = NULL;
+					v.push_back(new IndivCmd(cmdArgs));
+					cmdArgs = new char*[1024];
+					cmdsize = 0;
+				}
+				// find the closing parenthesis and pass in the cmds in between
+				unsigned l;
+				// using cmdArgs to pass into the Parentheses
+				for (l = 0; strcmp(args[curr+l], ")") != 0; l++) {
+					cmdArgs[cmdsize] = new char[128];
+					strcpy(cmdArgs[cmdsize], args[curr+l]);
+					cmdsize++;
+				}
+				cmdArgs[cmdsize] = NULL;
+				// will have Parentheses later
+				//v.push_back(new Parentheses(cmdArgs));
+				cmdArgs = new char*[1024];
+				cmdsize = 0;
+				// set the next curr as after ')'
+				curr += l;
+			} else if (strcmp(args[curr], "[") == 0) { // brackets case
+				// if starts with "test" will be treated as regular cmd but with special functionality in IndivCmd
+				
+				// if has something in the cmdArgs before '['
+				if (cmdsize != 0) {
+					cmdArgs[cmdsize] = NULL;
+					v.push_back(new IndivCmd(cmdArgs));
+					cmdArgs = new char*[1024];
+					cmdsize = 0;
+				}
+				// set [ as first arg and includes up to and including ]
+				strcpy(cmdArgs[], "[");
+				cmdsize++;
+				cmdArgs[cmdsize] = new char[128];
+
+				while(args[curr] != 0 && ) {
+
+				}
+
+				// push back the cmd
+				cmdArgs[cmdsize] = NULL;
+				v.push_back(new IndivCmd(cmdArgs));
+				cmdArgs = new char*[1024];
+				cmdsize = 0;
+				
+			} else { // otherwise, either a cmd or an argument 
 				cmdArgs[cmdsize] = new char[128];
 				strcpy(cmdArgs[cmdsize],args[curr]);
 				cmdsize++;
 			}
 			curr++;
-		}
+		} // end with the last cmd not yet pushed in
 		v.push_back(new IndivCmd(cmdArgs));
 
 		for (unsigned m = 0; m < v.size(); m++) {
