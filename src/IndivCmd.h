@@ -3,6 +3,8 @@
 
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <sys/shm.h>
+#include <sys/types.h>
 
 using namespace std;
 

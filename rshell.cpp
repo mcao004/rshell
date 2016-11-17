@@ -16,6 +16,20 @@
 
 using namespace std;
 
+char* noSpaces(char* string) {
+	int j = 0; unsigned i = 0;
+	char* result = string;
+	for (;i<strlen(string); i++){
+		if(string[i]!=' ')
+			result[j] = string[i];
+		else
+			j--;
+		j++;
+	}
+	result[j] = 0;
+	return result;
+}
+
 // parse the line of input into a vector of the commands and their connectors in order of appearance
 char** parse(string input) {
 	string inputcopy = input;
@@ -202,9 +216,12 @@ char** parse(string input) {
 		currarg++;
 	}
 	// add the NULL at the end of argv
-	argv[currarg] = new char[128];
-	strcpy(argv[currarg], ctemp);
-	currarg++;
+	int i = 0;
+	while(argv[i] != '\0') {
+		argv[i] = noSpaces(argv[i]);
+		//cout << "argv[" << i << "]: " << argv[i] << endl;
+		i++;
+	}
 	return argv;
 }
 
@@ -213,19 +230,7 @@ char** parse(string input) {
 	return input.find_first_of('#');
 }*/
 
-char* noSpaces(char* string) {
-	int j = 0; unsigned i = 0;
-	char* result = string;
-	for (;i<strlen(string); i++){
-		if(string[i]!=' ')
-			result[j] = string[i];
-		else
-			j--;
-		j++;
-	}
-	result[j] = 0;
-	return result;
-}
+
 
 int main( )
 {
@@ -259,7 +264,6 @@ int main( )
 
 		// if restructured, would be recursive for intuitive parentheses within parentheses handling
 		while (args[curr] != 0) {
-			args[curr] = noSpaces(args[curr]);
 			/*if (strcmp(args[curr],"test") == 0) {
 				cmdArgs[cmdsize] = NULL;
 				v.push_back(new testCmd(
@@ -319,19 +323,34 @@ int main( )
 					cmdsize = 0;
 				}
 				// set [ as first arg and includes up to and including ]
-				strcpy(cmdArgs[], "[");
-				cmdsize++;
 				cmdArgs[cmdsize] = new char[128];
+				strcpy(cmdArgs[0], "[");
+				cmdsize++;
+				curr++;
 
-				while(args[curr] != 0 && ) {
-
+				// set all the args leading to "]" into test
+				while(args[curr] != '\0' && strcmp(args[curr],"]") != 0 ) {
+					cmdArgs[cmdsize] = new char[128];
+					strcpy(cmdArgs[cmdsize],args[curr]);
+					cmdsize++;
+					curr++;
+				}
+				if (args[curr] == '\0') {
+					perror("Error: did not end test with ']'.");
+					return 1;
 				}
 
+				// set last arg as "]" and then null
+				cmdArgs[cmdsize] = new char[128];
+				strcpy(cmdArgs[cmdsize],args[curr]);
+				cmdsize++;
+				curr++;
+
 				// push back the cmd
-				cmdArgs[cmdsize] = NULL;
-				v.push_back(new IndivCmd(cmdArgs));
-				cmdArgs = new char*[1024];
-				cmdsize = 0;
+				//cmdArgs[cmdsize] = NULL;
+				//v.push_back(new IndivCmd(cmdArgs));
+				//cmdArgs = new char*[1024];
+				//cmdsize = 0;
 				
 			} else { // otherwise, either a cmd or an argument 
 				cmdArgs[cmdsize] = new char[128];

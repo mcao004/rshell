@@ -15,7 +15,7 @@ void LineCmd::add(Cmd* c) {
 		last->next = c;
 		c->prev = last;
 		last = c;
-		c->next = NULL;
+		c->next = 0;
 	}
 }
 
@@ -23,7 +23,7 @@ void LineCmd::execute() {
 	// execute through the linked list
 	//executed = false;
 	Cmd* currCmd = first;
-	while(currCmd != NULL) {
+	while(currCmd) {
 		currCmd->execute();
 		currCmd=currCmd->next;
 	}

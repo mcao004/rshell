@@ -18,7 +18,7 @@ void IndivCmd::test(char** args) {
 	// 0 is location of "test" or "["
 	
 	// find end of args, so we don't seg fault
-	for (end = 0; strcmp(args[end],"]") != 0 && strcmp(args[end],"\0") != 0; end++) {}
+	for (end = 0; args[end] &&  strcmp(args[end],"]") != 0 && strcmp(args[end],"\0") != 0; end++) {}
 	// now end is the index after the last argument
 	
 	// actual test of arguments
@@ -50,10 +50,7 @@ void IndivCmd::test(char** args) {
 		} else if (strcmp(args[1],"-e") == 0 || strcmp(args[1], "-f") == 0 || strcmp(args[1],"-d") == 0) { // if -e, -f, or -d, perform the operation on following operator
 			struct stat bf;
 
-			if (stat(args[1], &bf) == -1) { // if doesn't exist, cannot fulfill any of the three flag conditions
-				cout << "(FALSE)" << endl;
-				executed = false;
-			} else {
+			if (stat(args[2], &bf) != -1) { // if exists
 				if (strcmp(args[1],"-d") == 0) {
 					if (S_ISDIR(bf.st_mode)) { // checks if directory
 						cout << "(TRUE)" << endl;
@@ -72,8 +69,11 @@ void IndivCmd::test(char** args) {
 					}
 				} else { // -e
 					cout << "(TRUE)" << endl;
-					execute = true;
+					executed = true;
 				}
+			} else {
+				cout << "(FALSE)" << endl;
+				executed = false;
 			}
 		} else { // not a valid unary conditional operator, false
 			cout << "(FALSE)" << endl;
@@ -85,12 +85,12 @@ void IndivCmd::test(char** args) {
 				struct stat bf;
 				
 				// test if file actually exists
-				if (stat(arg[3],bf) == -1) {
-					cout << "(FALSE)" << endl;
-					executed = false;
+				if (stat(args[3],&bf) == -1) {
+					cout << "(TRUE)" << endl;
+					executed = true;
 				} else {
 					if (strcmp(args[2],"-d") == 0) {
-						if (S_ISDIR(bf.st_mode)) { // if directory
+						if (!S_ISDIR(bf.st_mode)) { // if directory
 							cout << "(TRUE)" << endl;
 							executed = true;
 						} else {
@@ -98,7 +98,7 @@ void IndivCmd::test(char** args) {
 							executed = false;
 						}
 					} else if (strcmp(args[2], "-f") == 0) {
-						if (S_ISREG(bf.st_mode)) { // if regular file
+						if (!S_ISREG(bf.st_mode)) { // if regular file
 							cout << "(TRUE)" << endl;
 							executed = true;
 						} else {
@@ -106,8 +106,8 @@ void IndivCmd::test(char** args) {
 							executed = false;
 						}
 					} else { // if file exists
-						cout << "(TRUE)" << endl;
-						executed = true;
+						cout << "(FALSE)" << endl;
+						executed = false;
 					}
 				}
 			} else { // not a combination of arguments that will work
@@ -121,7 +121,7 @@ void IndivCmd::test(char** args) {
 	} else { // test does not seem to handle parentheses in its arguments, so we cannot go larger in terms of argument number
 		cout << "(FALSE)" << endl;
 		executed = false;
-	}   
+	} 
 }
 
 // has the ability to execute the command that it stores in argv
@@ -129,27 +129,40 @@ void IndivCmd::execute() {
 	if (prev && !(prev->executed)){ // if prev didn't execute
 		return;
 	}
+	
 	if (strcmp(argv[0],"exit")== 0) {
 		exit(0);
 	}
 	if (strcmp(argv[0],"test") == 0 || strcmp(argv[0], "[") == 0) {
 		test(argv);
+		return;
 	}
-
+	
+	
 	pid_t pid;
 	pid_t tpid;
 	executed = false;
+	int share_id;
+	bool *sharedExecuted = 0;
+
+	// create shared memory
+	share_id = shmget(IPC_PRIVATE,sizeof(sharedExecuted),S_IRUSR|S_IWUSR);
+	sharedExecuted = (bool *)shmat(share_id,NULL,0);
 
 	pid = fork();
 	if(pid < 0) { // fail
 		perror("Error: fork failed\n" );
 		exit(1);
 	} else if (pid == 0) { // child
+		*sharedExecuted = true;
 		if (execvp(argv[0], argv) < 0) {
-			executed = false;
+			*sharedExecuted = false;
 			//cout << "Arg 1 = " << argv[0] << endl;
 			perror("Error: execvp failed\n");
-		} executed = true;
+			return;
+		} else {
+			*sharedExecuted = true;
+		}
 	} else {// parent process
 		while(1) {
 			tpid = waitpid(pid,NULL, 0);
@@ -159,6 +172,9 @@ void IndivCmd::execute() {
 			} else if (tpid == 0) { // child running
 				;
 			} else {// child done
+				executed = *sharedExecuted;
+				shmdt(sharedExecuted);
+				shmctl(share_id,IPC_RMID,NULL);
 				break;
 			}
 		}
