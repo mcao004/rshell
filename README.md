@@ -74,7 +74,12 @@ single_command.sh
 commented_command.sh
 
 multi_command.sh
+
 exit.sh
+
+test_test.sh 
+
+precedence_test.sh 
 ```
 
 ##Instructions to run on your machine after you clone it
