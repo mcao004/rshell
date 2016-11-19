@@ -23,17 +23,17 @@ void IndivCmd::test(char** args) {
 	
 	// actual test of arguments
 	if (end == 1) { // no arguments otherwise known as only "test"
-		cout << "(FALSE)" << endl;
+		cout << "(False)" << endl;
 		executed = false;
 	} else if (end == 2) { // 1 argument true if not NULL, if regular test, but in this case we default to -e and check path
 		struct stat bf; // stat buffer
 		
 		// now check if file exists
 		if (stat(args[1], &bf) != -1) {
-			cout << "(TRUE)" << endl;
+			cout << "(True)" << endl;
 			executed = true;
 		} else {
-			cout << "(FALSE)" << endl;
+			cout << "(False)" << endl;
 			executed = false;
 		}
 	} else if (end == 3){ // 2 arugments, so all unary operators or !
@@ -41,10 +41,10 @@ void IndivCmd::test(char** args) {
 			struct stat bf;
 
 			if (stat(args[1], &bf) == -1){ // negation of file existing
-				cout << "(TRUE)" << endl;
+				cout << "(True)" << endl;
 				executed = true;
 			} else {
-				cout << "(FALSE)" << endl;
+				cout << "(False)" << endl;
 				executed = false;
 			}
 		} else if (strcmp(args[1],"-e") == 0 || strcmp(args[1], "-f") == 0 || strcmp(args[1],"-d") == 0) { // if -e, -f, or -d, perform the operation on following operator
@@ -53,30 +53,30 @@ void IndivCmd::test(char** args) {
 			if (stat(args[2], &bf) != -1) { // if exists
 				if (strcmp(args[1],"-d") == 0) {
 					if (S_ISDIR(bf.st_mode)) { // checks if directory
-						cout << "(TRUE)" << endl;
+						cout << "(True)" << endl;
 						executed = true;
 					} else {
-						cout << "(FALSE)" << endl;
+						cout << "(False)" << endl;
 						executed = false;
 					}
 				} else if (strcmp(args[1],"-f") == 0) {
 					if (S_ISREG(bf.st_mode)) {
-						cout << "(TRUE)" << endl;
+						cout << "(True)" << endl;
 						executed = true;
 					} else {
-						cout << "(FALSE)" << endl;
+						cout << "(False)" << endl;
 						executed = false;
 					}
 				} else { // -e
-					cout << "(TRUE)" << endl;
+					cout << "(True)" << endl;
 					executed = true;
 				}
 			} else {
-				cout << "(FALSE)" << endl;
+				cout << "(False)" << endl;
 				executed = false;
 			}
 		} else { // not a valid unary conditional operator, false
-			cout << "(FALSE)" << endl;
+			cout << "(False)" << endl;
 			executed = false;
 		}
 	} else if (end == 4) { // 3 argument -> our case: ( filepath ) and -e -f filepath does not work, but ! -e vim seems to work with its respective order
@@ -86,53 +86,56 @@ void IndivCmd::test(char** args) {
 				
 				// test if file actually exists
 				if (stat(args[3],&bf) == -1) {
-					cout << "(TRUE)" << endl;
+					cout << "(True)" << endl;
 					executed = true;
 				} else {
 					if (strcmp(args[2],"-d") == 0) {
 						if (!S_ISDIR(bf.st_mode)) { // if directory
-							cout << "(TRUE)" << endl;
+							cout << "(True)" << endl;
 							executed = true;
 						} else {
-							cout << "(FALSE)" << endl;
+							cout << "(False)" << endl;
 							executed = false;
 						}
 					} else if (strcmp(args[2], "-f") == 0) {
 						if (!S_ISREG(bf.st_mode)) { // if regular file
-							cout << "(TRUE)" << endl;
+							cout << "(True)" << endl;
 							executed = true;
 						} else {
-							cout << "(FALSE)" << endl;
+							cout << "(False)" << endl;
 							executed = false;
 						}
 					} else { // if file exists
-						cout << "(FALSE)" << endl;
+						cout << "(False)" << endl;
 						executed = false;
 					}
 				}
 			} else { // not a combination of arguments that will work
-				cout << "(FALSE)" << endl;
+				cout << "(False)" << endl;
 				executed = false;
 			}
 		} else { // else false since 
-			cout << "(FALSE)" << endl;
+			cout << "(False)" << endl;
 			executed = false;
 		}
 	} else { // test does not seem to handle parentheses in its arguments, so we cannot go larger in terms of argument number
-		cout << "(FALSE)" << endl;
+		cout << "(False)" << endl;
 		executed = false;
 	} 
 }
 
 // has the ability to execute the command that it stores in argv
 void IndivCmd::execute() {
+	
+		
 	if (prev && !(prev->executed)){ // if prev didn't execute
 		return;
 	}
-	
-	if (strcmp(argv[0],"exit")== 0) {
+
+	if (argv[0] && strcmp(argv[0],"exit")== 0) {
 		exit(0);
-	}
+	}	
+
 	if (strcmp(argv[0],"test") == 0 || strcmp(argv[0], "[") == 0) {
 		test(argv);
 		return;
@@ -159,7 +162,7 @@ void IndivCmd::execute() {
 			*sharedExecuted = false;
 			//cout << "Arg 1 = " << argv[0] << endl;
 			perror("Error: execvp failed\n");
-			return;
+			kill(getpid(),SIGTERM);
 		} else {
 			*sharedExecuted = true;
 		}
@@ -173,12 +176,20 @@ void IndivCmd::execute() {
 				;
 			} else {// child done
 				executed = *sharedExecuted;
+				/*if (executed)
+					cout << "true" << endl;
+				else
+					cout << "false" << endl;*/
 				shmdt(sharedExecuted);
 				shmctl(share_id,IPC_RMID,NULL);
 				break;
 			}
 		}
 	}
+	/*if (executed)
+		cout << "true" << endl;
+	else
+		cout << "false" << endl;*/
 	// if parent reaches this point, then
 	//executed = true; 
 }

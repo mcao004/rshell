@@ -1,5 +1,5 @@
 OBJS = Ampersand.o IndivCmd.o LineCmd.o Semicolon.o Sticks.o
-CPP = rshell.cpp src/Ampersand.cpp src/IndivCmd.cpp src/LineCmd.cpp src/Semicolon.cpp src/Sticks.cpp  
+CPP = rshell.cpp src/Ampersand.cpp src/IndivCmd.cpp src/LineCmd.cpp src/Semicolon.cpp src/Sticks.cpp src/Parentheses.cpp 
 CC = g++
 FLAGS = -Wall -Werror -ansi -pedantic
 

@@ -13,6 +13,7 @@
 #include "src/Ampersand.h"
 #include "src/LineCmd.h"
 #include "src/IndivCmd.h"
+#include "src/Parentheses.h"
 
 using namespace std;
 
@@ -32,7 +33,8 @@ char* noSpaces(char* string) {
 
 // parse the line of input into a vector of the commands and their connectors in order of appearance
 char** parse(string input) {
-	string inputcopy = input;
+	string inputcopy(input);
+	
 	string delim1 = ";";
 	string delim2 = "&&";
 	string delim3 = "||";
@@ -69,10 +71,10 @@ char** parse(string input) {
 
 	char** argv = new char *[1024];
 	char* ctemp = new char [128];
+	memset(ctemp, '\0', 128);
 	int currarg = 0;
+	//for(string::iterator it = inputcopy.begin(); it != inputcopy.end(); it++) {
 	for(unsigned i = 0; i < input.length() && inputcopy.at(i) != 0; i++) {
-		//cout << inputcopy.at(i) << endl;
-				
 		if (inputcopy.at(i) == '[') {
 			if (strlen(ctemp) != 0){ // if ctemp is not empty add to argv** and clear
 				argv[currarg] = new char[128];
@@ -141,7 +143,7 @@ char** parse(string input) {
 			argv[currarg] = new char[128];
 			strcpy(argv[currarg], semicolon);
 			currarg++;
-		}else if (inputcopy.at(i)=='&'){
+		}else if (inputcopy.at(i) =='&'){
 			if (i+1 < inputcopy.length() && inputcopy.at(i+1) == '&') {
 				// end the prev command
 				if (strlen(ctemp) > 0) {// not a blank string
@@ -207,6 +209,7 @@ char** parse(string input) {
 		}
 
 	}
+	
 	// when we reach the end, the last string is likely still in ctemp
 	if (strlen(ctemp) > 0) {
 		argv[currarg] = new char[128];
@@ -215,13 +218,18 @@ char** parse(string input) {
 		memset(ctemp,'\0',128);
 		currarg++;
 	}
+	
+	
 	// add the NULL at the end of argv
 	int i = 0;
 	while(argv[i] != '\0') {
 		argv[i] = noSpaces(argv[i]);
-		//cout << "argv[" << i << "]: " << argv[i] << endl;
 		i++;
 	}
+	
+	/*for (unsigned i = 0; argv[i] != '\0'; i++)
+		cout << argv[i] << endl;*/
+	
 	return argv;
 }
 
@@ -251,6 +259,8 @@ int main( )
 		// parse remaining commands/argumets
 		args = parse(input);
 		
+		i = 0;
+
 		LineCmd* l = new LineCmd(comment);
 		int curr = 0;
 		int cmdsize = 0;
@@ -269,49 +279,84 @@ int main( )
 				v.push_back(new testCmd(
 				
 			} else*/ // will use when finished fixing the problem
-			if (strcmp(args[curr], ";") == 0) { // for each delimiter, push_back the Cmd, and add the delimiter
+			if (strcmp(args[curr], "") == 0) {
+				;// do nothing since the cmd is nonexistent
+			} else if (strcmp(args[curr], ";") == 0) { // for each delimiter, push_back the Cmd, and add the delimiter
 				// null terminate the char*
-				cmdArgs[cmdsize] = NULL;
-				// push back the previous cmd and then the operator
-				v.push_back(new IndivCmd(cmdArgs));
-				cmdArgs = new char*[1024];
+				if (cmdsize != 0) {
+					cmdArgs[cmdsize] = NULL;
+					// push back the previous cmd and then the operator
+					v.push_back(new IndivCmd(cmdArgs));
+					cmdArgs = new char*[1024];
+					memset(cmdArgs,0,1024);
+					cmdsize = 0;
+				}
 				v.push_back(new Semicolon());
 				// reset cmdsize (the size of cmdArgs)
-				cmdsize = 0;
 			} else if (strcmp(args[curr], "||") == 0) { // same as before
-				cmdArgs[cmdsize] = NULL;
-				v.push_back(new IndivCmd(cmdArgs));
-				cmdArgs = new char*[1024];
+				if (cmdsize != 0) {
+					cmdArgs[cmdsize] = NULL;	
+					v.push_back(new IndivCmd(cmdArgs));
+					cmdArgs = new char*[1024];
+					memset(cmdArgs,0,1024);
+					cmdsize = 0;
+				}
 				v.push_back(new Sticks());
-				cmdsize = 0;
 			} else if (strcmp(args[curr], "&&") == 0) {
-				cmdArgs[cmdsize] = NULL;
-				v.push_back(new IndivCmd(cmdArgs));
-				cmdArgs = new char*[1024];
+				if (cmdsize != 0) {
+					cmdArgs[cmdsize] = NULL;
+					v.push_back(new IndivCmd(cmdArgs));
+					cmdArgs = new char*[1024];
+					memset(cmdArgs,0,1024);
+					cmdsize = 0;
+				}
 				v.push_back(new Ampersand());
-				cmdsize = 0;
 			} else if (strcmp(args[curr], "(") == 0) { // parentheses case
 				if (cmdsize != 0) { // some case handler where there is a cmd directly before the '('
 					cmdArgs[cmdsize] = NULL;
 					v.push_back(new IndivCmd(cmdArgs));
 					cmdArgs = new char*[1024];
+					memset(cmdArgs,0,1024);
 					cmdsize = 0;
 				}
-				// find the closing parenthesis and pass in the cmds in between
-				unsigned l;
-				// using cmdArgs to pass into the Parentheses
-				for (l = 0; strcmp(args[curr+l], ")") != 0; l++) {
-					cmdArgs[cmdsize] = new char[128];
-					strcpy(cmdArgs[cmdsize], args[curr+l]);
-					cmdsize++;
-				}
-				cmdArgs[cmdsize] = NULL;
-				// will have Parentheses later
-				//v.push_back(new Parentheses(cmdArgs));
 				cmdArgs = new char*[1024];
+				memset(cmdArgs,0,1024);
+				cmdsize = 0;
+				// find the closing parenthesis and pass in the cmds in between
+				curr++; // go to cmd after ')'
+				//cout << "What are we passing into Parentheses: "<< args[curr] << endl;
+				// using cmdArgs to pass into the Parentheses
+				for (unsigned l = 0; strcmp(args[curr], ")") != 0 && args[curr] != '\0'; l++) { // probably should be while loop
+					if (strcmp(args[curr], "") != 0) {
+						cmdArgs[cmdsize] = new char[128];
+						memset(cmdArgs[cmdsize],'\0',128);
+				//		cout << "args[" << cmdsize << "]: " << args[curr] << endl;
+
+						strcpy(cmdArgs[cmdsize], args[curr]);
+						cmdsize++;
+						curr++;
+					}
+				}
+				if (args[curr] == '\0') {
+					perror("Did not end '('  with ')");
+					return 1;
+				}
+				curr++;
+				cmdArgs[cmdsize] = NULL;
+				
+			//	cout << endl;
+				/*for (unsigned i = 0 ; cmdArgs[i] != NULL; i++){
+					cout<<"'(' pushing back: " << args[i] << endl;
+				}*/
+
+				//cout << "pushing parentheses" << endl;
+				// create Parentheses where they implement the LineCmd similarly
+				v.push_back(new Parentheses(cmdArgs));
+				
+				cmdArgs = new char*[1024];
+				memset(cmdArgs,0,1024);
 				cmdsize = 0;
 				// set the next curr as after ')'
-				curr += l;
 			} else if (strcmp(args[curr], "[") == 0) { // brackets case
 				// if starts with "test" will be treated as regular cmd but with special functionality in IndivCmd
 				
@@ -320,10 +365,12 @@ int main( )
 					cmdArgs[cmdsize] = NULL;
 					v.push_back(new IndivCmd(cmdArgs));
 					cmdArgs = new char*[1024];
+					memset(cmdArgs,0,1024);
 					cmdsize = 0;
 				}
 				// set [ as first arg and includes up to and including ]
 				cmdArgs[cmdsize] = new char[128];
+				memset(cmdArgs[cmdsize],'\0',128);
 				strcpy(cmdArgs[0], "[");
 				cmdsize++;
 				curr++;
@@ -331,6 +378,7 @@ int main( )
 				// set all the args leading to "]" into test
 				while(args[curr] != '\0' && strcmp(args[curr],"]") != 0 ) {
 					cmdArgs[cmdsize] = new char[128];
+					memset(cmdArgs[cmdsize],'\0',128);
 					strcpy(cmdArgs[cmdsize],args[curr]);
 					cmdsize++;
 					curr++;
@@ -342,6 +390,7 @@ int main( )
 
 				// set last arg as "]" and then null
 				cmdArgs[cmdsize] = new char[128];
+				memset(cmdArgs[cmdsize],'\0',128);
 				strcpy(cmdArgs[cmdsize],args[curr]);
 				cmdsize++;
 				curr++;
@@ -354,15 +403,25 @@ int main( )
 				
 			} else { // otherwise, either a cmd or an argument 
 				cmdArgs[cmdsize] = new char[128];
+				memset(cmdArgs[cmdsize],'\0',128);
 				strcpy(cmdArgs[cmdsize],args[curr]);
 				cmdsize++;
 			}
 			curr++;
-		} // end with the last cmd not yet pushed in
-		v.push_back(new IndivCmd(cmdArgs));
-
+		}
+		 // end with the last cmd not yet pushed in
+		//cout << "End of second parsing" << endl;
+		if (cmdArgs != NULL && cmdArgs[0] != NULL && strcmp(cmdArgs[0],"") != 0) {
+			v.push_back(new IndivCmd(cmdArgs));
+		}
+		// reinit the cmdArgs for next loop
+		cmdArgs = 0;
+		args = 0;
+	//	cout << "v.size(): " << v.size() << endl;
 		for (unsigned m = 0; m < v.size(); m++) {
-			l->add(v.at(m));
+			if (v.at(m))
+				l->add(v.at(m));
+			//cout <<"iteration: " <<  m << endl;
 		}
 		l->execute();
 	}
