@@ -54,6 +54,10 @@ LineCmd.h
 
 Operand.h
 
+Parentheses.cpp
+
+Parentheses.h
+
 Semicolon.cpp
 
 Semicolon.h
@@ -74,6 +78,7 @@ single_command.sh
 commented_command.sh
 
 multi_command.sh
+
 exit.sh
 ```
 
@@ -83,13 +88,11 @@ exit.sh
 
 2. Call `make`
 
-3. `cd` into `bin`
-
-4. Call `rshell`
+3. Call `./bin/rshell`
 
 
 ##BUGS
 
 1. Sometimes executes a command twice.
 
-2. Too long of input causes seg fult.
+2. Too long of input causes seg fault.
