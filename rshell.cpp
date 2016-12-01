@@ -13,6 +13,7 @@
 #include "src/Ampersand.h"
 #include "src/LineCmd.h"
 #include "src/IndivCmd.h"
+<<<<<<< HEAD
 #include "src/Parentheses.h"
 
 using namespace std;
@@ -42,6 +43,17 @@ char** parse(string input) {
 	string delim5 = ")";
 	string delim6 = "[";
 	string delim7 = "]";
+=======
+
+using namespace std;
+
+// parse the line of input into a vector of the commands and their connectors in order of appearance
+char** parse(string input) {
+	string inputcopy = input;
+	string delim1 = ";";
+	string delim2 = "&&";
+	string delim3 = "||";
+>>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
 	string b = "\0";
 
 	/*boost::char_separator<char> sep(";&|");
@@ -64,6 +76,7 @@ char** parse(string input) {
 	char* semicolon = const_cast<char*>(delim1.c_str());
 	char* ampersand = const_cast<char*>(delim2.c_str());
 	char* stick = const_cast<char*>(delim3.c_str());
+<<<<<<< HEAD
 	char* startparenthesis = const_cast<char*>(delim4.c_str());
 	char* endparenthesis = const_cast<char*>(delim5.c_str());
 	char* startbracket = const_cast<char*>(delim6.c_str());
@@ -129,6 +142,18 @@ char** parse(string input) {
 			argv[currarg] = new char[128];
 			strcpy(argv[currarg], ctemp);
 			memset(ctemp,'\0',128);
+=======
+
+	char** argv = new char *[1024];
+	char* ctemp = new char [128];
+	int currarg = 0;
+	for(unsigned i = 0; i < input.length() && inputcopy.at(i) != 0; i++) {
+		//cout << inputcopy.at(i) << endl;
+		if(strcmp(ctemp, "exit") == 0) {
+			argv[currarg] = new char[128];
+			strcpy(argv[currarg], ctemp);
+			memset(ctemp,'\0',20);
+>>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
 			currarg++;
 			// special case for "exit" to either fail to reach cmd exit or execute exit, so other cmds after are insignificant
 			break;
@@ -136,20 +161,32 @@ char** parse(string input) {
 			if (strlen(ctemp) != 0){
 				argv[currarg] = new char[128];
 				strcpy(argv[currarg], ctemp);
+<<<<<<< HEAD
 				memset(ctemp, '\0', 128);
+=======
+				memset(ctemp, '\0', 20);
+>>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
 				ctemp[0] = '\0';
 				currarg++;
 			}// add ';' into argv
 			argv[currarg] = new char[128];
 			strcpy(argv[currarg], semicolon);
 			currarg++;
+<<<<<<< HEAD
 		}else if (inputcopy.at(i) =='&'){
+=======
+		}else if (inputcopy.at(i)=='&'){
+>>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
 			if (i+1 < inputcopy.length() && inputcopy.at(i+1) == '&') {
 				// end the prev command
 				if (strlen(ctemp) > 0) {// not a blank string
 					argv[currarg] = new char[128];
 					strcpy(argv[currarg],ctemp);
+<<<<<<< HEAD
 					memset(ctemp, '\0', 128);
+=======
+					memset(ctemp, '\0', 20);
+>>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
 					ctemp[0] = '\0';
 					currarg++;
 				}
@@ -164,7 +201,11 @@ char** parse(string input) {
 				if (strlen(ctemp) > 0) {
 					argv[currarg] = new char[128];
 					strcpy(argv[currarg], ctemp);
+<<<<<<< HEAD
 					memset(ctemp, '\0', 128);
+=======
+					memset(ctemp, '\0', 20);
+>>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
 					ctemp[0] = '\0';
 					currarg++;
 				}// add another to represent the split
@@ -178,7 +219,11 @@ char** parse(string input) {
 					argv[currarg] = new char[128];
 					strcpy(argv[currarg], ctemp);
 					ctemp[0] = '\0';
+<<<<<<< HEAD
 					memset(ctemp, '\0', 128);
+=======
+					memset(ctemp, '\0', 20);
+>>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
 					currarg++;
 				}// add "||" into argv
 				argv[currarg] = new char[128];
@@ -191,7 +236,11 @@ char** parse(string input) {
 					argv[currarg] = new char[128];
 					strcpy(argv[currarg], ctemp);
 					ctemp[0] = '\0';
+<<<<<<< HEAD
 					memset(ctemp, '\0', 128);
+=======
+					memset(ctemp, '\0', 20);
+>>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
 					currarg++;
 				}// add '|' into argv
 				argv[currarg] = new char[128];
@@ -202,6 +251,7 @@ char** parse(string input) {
 			argv[currarg] = new char[128];
 			strcpy(argv[currarg], ctemp);
 			ctemp[0] = '\0';
+<<<<<<< HEAD
 			memset(ctemp,'\0', 128);
 			currarg++;	
 		}else { // none of the possible connectors, so just add the current char to ctemp
@@ -230,6 +280,30 @@ char** parse(string input) {
 	/*for (unsigned i = 0; argv[i] != '\0'; i++)
 		cout << argv[i] << endl;*/
 	
+=======
+			memset(ctemp,'\0', 20);
+			currarg++;	
+		}else { // none of the possible connectors
+			//strcat(ctemp, inputcopy.at(i)); // => ctemp += inputcopy.at(i);
+			ctemp[strlen(ctemp)] = inputcopy.at(i);
+			//strcat(ctemp,&inputcopy.at(i));
+			/*othertemp = malloc(strlen(ctemp) + 1);
+			strcpy(othertemp, ctemp);
+			strcat(othertemp, inputcopy.at(i));
+			ctemp = othertemp;
+			othertemp = blank;*/
+		}
+
+	}
+	// when we reach the end the last string is likely still in ctemp
+	if (strlen(ctemp) > 0) {
+		argv[currarg] = new char[128];
+		strcpy(argv[currarg],ctemp);
+		ctemp = '\0';
+		currarg++;
+	}
+	// add the NULL at the end of argv
+>>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
 	return argv;
 }
 
@@ -238,7 +312,23 @@ char** parse(string input) {
 	return input.find_first_of('#');
 }*/
 
+<<<<<<< HEAD
 
+=======
+char* noSpaces(char* string) {
+	int j = 0; unsigned i = 0;
+	char* result = string;
+	for (;i<strlen(string); i++){
+		if(string[i]!=' ')
+			result[j] = string[i];
+		else
+			j--;
+		j++;
+	}
+	result[j] = 0;
+	return result;
+}
+>>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
 
 int main( )
 {
@@ -259,8 +349,11 @@ int main( )
 		// parse remaining commands/argumets
 		args = parse(input);
 		
+<<<<<<< HEAD
 		i = 0;
 
+=======
+>>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
 		LineCmd* l = new LineCmd(comment);
 		int curr = 0;
 		int cmdsize = 0;
@@ -271,6 +364,7 @@ int main( )
 			curr++;
 		}*/
 		vector<Cmd*> v;
+<<<<<<< HEAD
 
 		// if restructured, would be recursive for intuitive parentheses within parentheses handling
 		while (args[curr] != 0) {
@@ -404,11 +498,36 @@ int main( )
 			} else { // otherwise, either a cmd or an argument 
 				cmdArgs[cmdsize] = new char[128];
 				memset(cmdArgs[cmdsize],'\0',128);
+=======
+		while (args[curr] != 0) {
+			args[curr] = noSpaces(args[curr]);
+			if (strcmp(args[curr], ";") == 0) {
+				cmdArgs[cmdsize] = NULL;
+				v.push_back(new IndivCmd(cmdArgs));
+				cmdArgs = new char*[1024];
+				v.push_back(new Semicolon());
+				cmdsize = 0;
+			} else if (strcmp(args[curr], "||") == 0) {
+				cmdArgs[cmdsize] = NULL;
+				v.push_back(new IndivCmd(cmdArgs));
+				cmdArgs = new char*[1024];
+				v.push_back(new Sticks());
+				cmdsize = 0;
+			} else if (strcmp(args[curr], "&&") == 0) {
+				cmdArgs[cmdsize] = NULL;
+				v.push_back(new IndivCmd(cmdArgs));
+				cmdArgs = new char*[1024];
+				v.push_back(new Ampersand());
+				cmdsize = 0;
+			} else {
+				cmdArgs[cmdsize] = new char[128];
+>>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
 				strcpy(cmdArgs[cmdsize],args[curr]);
 				cmdsize++;
 			}
 			curr++;
 		}
+<<<<<<< HEAD
 		 // end with the last cmd not yet pushed in
 		//cout << "End of second parsing" << endl;
 		if (cmdArgs != NULL && cmdArgs[0] != NULL && strcmp(cmdArgs[0],"") != 0) {
@@ -422,6 +541,12 @@ int main( )
 			if (v.at(m))
 				l->add(v.at(m));
 			//cout <<"iteration: " <<  m << endl;
+=======
+		v.push_back(new IndivCmd(cmdArgs));
+
+		for (unsigned m = 0; m < v.size(); m++) {
+			l->add(v.at(m));
+>>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
 		}
 		l->execute();
 	}

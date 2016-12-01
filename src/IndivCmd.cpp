@@ -124,6 +124,34 @@ void IndivCmd::test(char** args) {
 	} 
 }
 
+
+// performs the change of directory using PWD, OLDPWD, setenv, getenv
+void IndivCmd::cd(char** args) {
+	// case where there is no second argument => change to home directory
+    if (!args[1] || args[1] == NULL || args[1] == '0') {
+        char* curr = getenv("HOME");
+        if (curr == NULL)
+            perror("getenv HOME");
+        if (-1 == setenv("PWD", curr, 1)
+            perror("setenv HOME");
+    } else if (strcmp(args[1], "..") == 0) { // case where the second argument is ".."
+        
+    }else if (strcmp(args[1],"-") == 0) {// case where there is '-' => change to PWD
+        char* curr = getenv("PWD");
+        if (curr == NULL)
+            perror("getenv PWD");
+        char* temp = getenv("OLDPWD");
+        if (temp == NULL)
+            perror("getenv PWD");
+        if (-1 == setenv("PWD", temp, 1))
+            perror("setenv PWD to last dir");
+        if (-1 == setenv("OLDPWD", curr, 1))
+            perror("setenv OLDPWD to current dir");
+    } else {// default/general case
+        
+    }
+}
+
 // has the ability to execute the command that it stores in argv
 void IndivCmd::execute() {
 	
@@ -141,6 +169,10 @@ void IndivCmd::execute() {
 		return;
 	}
 	
+	if (strcmp(argv[0], "cd") == 0 ) {
+		cd(argv);
+		return;
+	}
 	
 	pid_t pid;
 	pid_t tpid;
