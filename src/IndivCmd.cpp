@@ -5,10 +5,7 @@ IndivCmd::IndivCmd(char** argv)
 :argv(argv)
 {}
 
-IndivCmd::~IndivCmd() {
-	cout << "IndivCmd destructor" << endl;
-	delete argv;
-}
+<<<<<<< HEAD
 
 // more of a file test than anything else
 // honestly could have better organized this such as returning a bool and cout/setting executed based on that outside of the test class
@@ -151,12 +148,15 @@ void IndivCmd::execute() {
 	// create shared memory
 	share_id = shmget(IPC_PRIVATE,sizeof(sharedExecuted),S_IRUSR|S_IWUSR);
 	sharedExecuted = (bool *)shmat(share_id,NULL,0);
+=======
+>>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
 
 	pid = fork();
 	if(pid < 0) { // fail
 		perror("Error: fork failed\n" );
 		exit(1);
 	} else if (pid == 0) { // child
+<<<<<<< HEAD
 		*sharedExecuted = true;
 		if (execvp(argv[0], argv) < 0) {
 			*sharedExecuted = false;
@@ -166,6 +166,8 @@ void IndivCmd::execute() {
 		} else {
 			*sharedExecuted = true;
 		}
+=======
+>>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
 	} else {// parent process
 		while(1) {
 			tpid = waitpid(pid,NULL, 0);
@@ -175,6 +177,7 @@ void IndivCmd::execute() {
 			} else if (tpid == 0) { // child running
 				;
 			} else {// child done
+<<<<<<< HEAD
 				executed = *sharedExecuted;
 				/*if (executed)
 					cout << "true" << endl;
@@ -182,14 +185,19 @@ void IndivCmd::execute() {
 					cout << "false" << endl;*/
 				shmdt(sharedExecuted);
 				shmctl(share_id,IPC_RMID,NULL);
+=======
+>>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
 				break;
 			}
 		}
 	}
+<<<<<<< HEAD
 	/*if (executed)
 		cout << "true" << endl;
 	else
 		cout << "false" << endl;*/
+=======
+>>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
 	// if parent reaches this point, then
 	//executed = true; 
 }
