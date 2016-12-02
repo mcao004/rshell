@@ -197,8 +197,11 @@ void IndivCmd::cd(char** args) {
 			// if our current directory ends with '/'
 			
 			
-			lastslash = temp-curr+1; // store index of lastslash
-			curr[lastslash-1] = '\0';
+			lastslash = temp-curr; // store index of lastslash
+			if (lastslash != 0)
+				curr[lastslash] = '\0';
+			else
+				curr[lastslash+1] = '\0';
 
 			// checking the flow of our navigation
 			//cout << "arg: " << currarg+3 << endl;
