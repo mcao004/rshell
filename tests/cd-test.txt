@@ -1,0 +1,10 @@
+mkdir testcd ; cd testcd
+cd
+mkdir choco
+cd-
+cd choco
+cd ..
+mkdir boo && ls -a; cd boo
+cd ..
+cd ..;cd
+mkdir www;cd www; exit
