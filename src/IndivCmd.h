@@ -1,6 +1,10 @@
 #ifndef __INDIVCMD_HH__
 #define __INDIVCMD_HH__
 
+#include <linux/limits.h>
+#include <unistd.h>
+#include <iostream>
+#include <cstdlib>
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/shm.h>
@@ -13,6 +17,7 @@ using namespace std;
 class IndivCmd : public Cmd {
 	private:
 		void test(char** args);
+		void cd(char** args);
 	protected:
 		char** argv;
 	public:
