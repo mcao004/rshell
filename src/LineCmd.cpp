@@ -29,6 +29,9 @@ void LineCmd::execute() {
 	//bool succeed = true;
 	int i = 0;
 	//cout << "Start working on line" << endl;
+	
+	
+
 	while(currCmd) {
 		currCmd->execute();
 		// the last cmd to executed is true, then true
@@ -37,10 +40,10 @@ void LineCmd::execute() {
 			// if i is odd => operator
 		if (i == 0 || currCmd->next == 0){ // if first or last, match their executed variable
 			//cout << "first/last: ";
-			/*if ( currCmd->executed)
-				cout << "true" << endl;
-			else
-				cout << "false" << endl;*/
+			//if ( currCmd->executed)
+			//	cout << "true" << endl;
+			//else
+			//	cout << "false" << endl;
 			executed = currCmd->executed;
 		} else if (i%2 == 1 && currCmd->prev &&  !currCmd->executed ) {
 			executed = currCmd->prev->executed;

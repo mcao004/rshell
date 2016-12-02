@@ -127,6 +127,7 @@ void IndivCmd::test(char** args) {
 
 // performs the change of directory using PWD, OLDPWD, setenv, getenv
 void IndivCmd::cd(char** args) {
+    //cout << "Start cd" << endl;
     // case where there is no second argument => change to home directory 
     if (!args[1] || args[1] == NULL || args[1] == '\0') {
         char* pwd = getenv("HOME");
@@ -145,8 +146,10 @@ void IndivCmd::cd(char** args) {
         	perror("setenv HOME");
 	else if (-1 == setenv("OLDPWD", old,1))
 		perror("setenv old");
-	else // set pwd pointer's data to what we are working with
+	else {  // set pwd pointer's data to what we are working with
 		strcpy(pwd,curr);
+		executed = true;
+	}
     } else if (strncmp(args[1], "../", 2) == 0) { // case where the second argument is ".."
         // this problem needs to be perfomed recursively for ../../../etc.
 	char copy[4096];
@@ -233,8 +236,10 @@ void IndivCmd::cd(char** args) {
 		perror("setenv PWD to ..");
 	else if (-1 == setenv("OLDPWD", old, 1))
 		perror("setenv OLDPWD from ..");
-	else
+	else {
 		strcpy(pwd,curr);
+		executed = true;
+	}
     }else if (strcmp(args[1],"-") == 0) {// case where there is '-' => change to PWD
         char* pwd = getenv("PWD");
 	char curr[4096];
@@ -253,9 +258,10 @@ void IndivCmd::cd(char** args) {
             perror("setenv PWD to last dir");
         else if (-1 == setenv("OLDPWD", curr, 1))
             perror("setenv OLDPWD to current dir");
-	else // if all works, then assign the path to pwd
+	else { // if all works, then assign the path to pwd
 	    strcpy(pwd,curr);
-	
+	    executed = true;
+	}
     } else {// default/general case
         // NOTE: the second argument may work with or without a '/' char at the end
 	unsigned numtoappend = strlen(args[1]); // all of the chars in argument
@@ -286,14 +292,16 @@ void IndivCmd::cd(char** args) {
 		perror("setenv on new path");
 	else if (-1 == setenv("OLDPWD", old, 1))
 		perror("setenv of old path");
-	else // final assignment of path to actual pointer
+	else {// final assignment of path to actual pointer
 		strcpy(pwd,curr);
-    }
+		executed = true;
+	}
+    }//cout << "End cd" << endl;
 }
 
 // has the ability to execute the command that it stores in argv
 void IndivCmd::execute() {
-	
+	//cout << "Indiv execute" << endl;
 		
 	if (prev && !(prev->executed)){ // if prev didn't execute
 		return;
