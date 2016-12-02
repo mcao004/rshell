@@ -217,19 +217,22 @@ void IndivCmd::cd(char** args) {
 	//			cout << "somehow did not find '/'" << endl;
 				return;
 			}
-			lastslash = temp-curr+1;
-			curr[lastslash-1] = '\0';
-
+			lastslash = temp-curr;
+			if (lastslash != 0) // if not the only /
+				curr[lastslash] = '\0';
+			else
+				curr[lastslash+1] = '\0';
 	//		cout << "arg: " << currarg+3 << endl;
 	//		cout << "dir: " << curr << endl;
 		}
-		currarg += 3;
-	} else { // some other directory navigation => same as general case
+		currarg += 2;
+	} else if (strlen(currarg) != 0) { // some other directory navigation => same as general case
 		unsigned numtoappend = strlen(currarg);
 		if (currarg[numtoappend-1] == '/')
 			numtoappend--;
 		
-		strcat(curr,"/");
+		if (curr[strlen(curr)-1] != '/')
+			strcat(curr,"/");
 		strncat(curr,currarg,numtoappend);
 		curr[strlen(curr)] = '\0';	
 	}
@@ -294,7 +297,8 @@ void IndivCmd::cd(char** args) {
 		curr[numtoappend] = '\0';
 	} else {
 		// append the / to end of current path
-		strcat(curr,"/");
+		if (curr[strlen(curr)-1] != '/')
+			strcat(curr,"/");
 		// append the argument to our current environment
 		strncat(curr,args[1],numtoappend);
 		curr[strlen(curr)] = '\0';
