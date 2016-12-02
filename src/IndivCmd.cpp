@@ -128,11 +128,21 @@ void IndivCmd::test(char** args) {
 // performs the change of directory using PWD, OLDPWD, setenv, getenv
 void IndivCmd::cd(char** args) {
     //cout << "Start cd" << endl;
+    /*if (args[1] && args[1] != NULL && args[1] != '\0' && strncmp(args[1],"/",1) {
+	if (chdir("/") != 0) {
+		perror("chdir root");
+		return;
+	} else if (-1 == setenv("PWD", "/", 1))
+		perror("setenv /");
+	else {
+
+	}
+    }*/
     // case where there is no second argument => change to home directory 
     if (!args[1] || args[1] == NULL || args[1] == '\0') {
         char* pwd = getenv("HOME");
 	char curr[4096];
-        if (curr == NULL) {
+        if (pwd == NULL) {
         	perror("getenv HOME");
 		return;	
 	}
@@ -160,7 +170,7 @@ void IndivCmd::cd(char** args) {
 	char* pwd = getenv("PWD");
 	// keep separate a  pointer to our actual pwd and what we are modifing til the end
 	char curr[4096];
-	if (curr == NULL ) {
+	if (pwd == NULL ) {
 		perror("getenv PWD");
 		return;
 	}
@@ -243,7 +253,7 @@ void IndivCmd::cd(char** args) {
     }else if (strcmp(args[1],"-") == 0) {// case where there is '-' => change to PWD
         char* pwd = getenv("PWD");
 	char curr[4096];
-        if (curr == NULL) {
+        if (pwd == NULL) {
             perror("getenv PWD");
 	    return;
 	}
@@ -265,13 +275,13 @@ void IndivCmd::cd(char** args) {
     } else {// default/general case
         // NOTE: the second argument may work with or without a '/' char at the end
 	unsigned numtoappend = strlen(args[1]); // all of the chars in argument
-	if (args[1][numtoappend-1] == '/') {// if last part of args is '/'
+	if (numtoappend != 1 && args[1][numtoappend-1] == '/') {// if last part of args is '/'
 		numtoappend--;
 	} // got rid of any excess / at end of new path
 
 	char* pwd = getenv("PWD"); // actual pointer
 	char curr[4096]; // copy of the path
-	if (curr == NULL) {
+	if (pwd == NULL) {
 		perror("getenv PWD");
 		return;
 	}
@@ -279,11 +289,20 @@ void IndivCmd::cd(char** args) {
 	char old[4096];
 	strcpy(old,curr);
 	
-	// append the / to end of current path
-	strcat(curr,"/");
-	// append the argument to our current environment
-	strncat(curr,args[1],numtoappend);
-	curr[strlen(curr)] = '\0';
+	if (args[1][0] == '/') {
+		cout << "root case" << endl;
+		curr[0] = 0;
+		cout << curr << endl;
+		strncpy(curr,args[1],numtoappend);
+		cout << args[1] << endl;
+		curr[numtoappend] = '\0';
+	} else {
+		// append the / to end of current path
+		strcat(curr,"/");
+		// append the argument to our current environment
+		strncat(curr,args[1],numtoappend);
+		curr[strlen(curr)] = '\0';
+	}
 	//cout << "This is the new path: " << curr << endl;
 	if (chdir(curr) != 0) {
 		perror("chdir to new path");
