@@ -1,6 +1,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <cstdio>
+#include <cstdlib>
 #include <unistd.h>
 #include <string>
 #include <cstring>
@@ -277,7 +278,13 @@ int main( )
 	char** args;
 	string comment = "";
 	while(1) {
+		// prompt
+		char* currentdir = getenv("PWD");
+		if (currentdir == NULL)
+			perror("Error: env prompt");
+		cout << currentdir << endl;
 		cout << "$";
+
 		getline(cin, input);
 	
 		//check for comments and separate

@@ -121,9 +121,203 @@ void IndivCmd::test(char** args) {
 	} 
 }
 
+
+// performs the change of directory using PWD, OLDPWD, setenv, getenv
+void IndivCmd::cd(char** args) {
+    //cout << "Start cd" << endl;
+    /*if (args[1] && args[1] != NULL && args[1] != '\0' && strncmp(args[1],"/",1) {
+	if (chdir("/") != 0) {
+		perror("chdir root");
+		return;
+	} else if (-1 == setenv("PWD", "/", 1))
+		perror("setenv /");
+	else {
+
+	}
+    }*/
+    // case where there is no second argument => change to home directory 
+    if (!args[1] || args[1] == NULL || args[1] == '\0') {
+        char* pwd = getenv("HOME");
+	char curr[4096];
+        if (pwd == NULL) {
+        	perror("getenv HOME");
+		return;	
+	}
+	strcpy(curr,pwd);
+	char old[4096];
+	strcpy(old,curr);
+        if (chdir(curr) != 0) {
+		perror("chdir HOME");
+		return;
+	} else if (-1 == setenv("PWD", curr, 1))
+        	perror("setenv HOME");
+	else if (-1 == setenv("OLDPWD", old,1))
+		perror("setenv old");
+	else {  // set pwd pointer's data to what we are working with
+		strcpy(pwd,curr);
+		executed = true;
+	}
+    } else if (strncmp(args[1], "../", 2) == 0) { // case where the second argument is ".."
+        // this problem needs to be perfomed recursively for ../../../etc.
+	char copy[4096];
+	strcpy(copy,args[1]);
+	char* currarg = copy;
+	//cout << ".. case: " << currarg << endl;
+	
+	char* pwd = getenv("PWD");
+	// keep separate a  pointer to our actual pwd and what we are modifing til the end
+	char curr[4096];
+	if (pwd == NULL ) {
+		perror("getenv PWD");
+		return;
+	}
+	strcpy(curr,pwd);
+	// keep track of the old path to store into oldpwd
+	char old[4096];
+	strcpy(old,pwd);
+
+
+	char* temp;
+	unsigned lastslash = 0; // index of last slash
+	
+
+	// iterative changes to curr until we are out of "../"'s in args[1]
+	// In other words, for every "../" in currarg, we go back a directory
+	while (strncmp(currarg, "../miscellaneous", 3) == 0) {
+		//cout << "we have ../" << endl;
+		if (strlen(curr) <= 1) { // current path is only "/"
+			//cout << "current path length <= 1" << endl;
+		} else { 
+			// find the last forward slash to environment
+			temp = strrchr(curr,'/'); // last occurrence of slash
+			if (temp == NULL) {
+	//			cout << "somehow did not find '/'" << endl;
+				return;
+			}
+
+			// if our current directory ends with '/'
+			
+			
+			lastslash = temp-curr+1; // store index of lastslash
+			curr[lastslash-1] = '\0';
+
+			// checking the flow of our navigation
+			//cout << "arg: " << currarg+3 << endl;
+			//cout << "dir: " << curr << endl;
+		}
+		// get rid of first three chars of currarg
+		currarg += 3;
+	}
+	// after all of the "../"'s there may be a .. or some other directory left.
+	if (strcmp(currarg,"..") == 0) {
+		if (strlen(curr) == 1) {
+	//		cout << "current path length == 1" << endl;
+		} else {
+			temp = strrchr(curr,'/');
+			if (temp == NULL) {
+	//			cout << "somehow did not find '/'" << endl;
+				return;
+			}
+			lastslash = temp-curr+1;
+			curr[lastslash-1] = '\0';
+
+	//		cout << "arg: " << currarg+3 << endl;
+	//		cout << "dir: " << curr << endl;
+		}
+		currarg += 3;
+	} else { // some other directory navigation => same as general case
+		unsigned numtoappend = strlen(currarg);
+		if (currarg[numtoappend-1] == '/')
+			numtoappend--;
+		
+		strcat(curr,"/");
+		strncat(curr,currarg,numtoappend);
+		curr[strlen(curr)] = '\0';	
+	}
+
+	// set newpath as the current directory
+	if (chdir(curr) != 0) {
+		perror("chdir PWD to ..");
+		return;
+	} else if (-1 == setenv("PWD", curr, 1))
+		perror("setenv PWD to ..");
+	else if (-1 == setenv("OLDPWD", old, 1))
+		perror("setenv OLDPWD from ..");
+	else {
+		strcpy(pwd,curr);
+		executed = true;
+	}
+    }else if (strcmp(args[1],"-") == 0) {// case where there is '-' => change to PWD
+        char* pwd = getenv("PWD");
+	char curr[4096];
+        if (pwd == NULL) {
+            perror("getenv PWD");
+	    return;
+	}
+	strcpy(curr,pwd);
+        char* old = getenv("OLDPWD");
+        if (old == NULL)
+            perror("getenv PWD");
+        else if (chdir(old) != 0) {
+	    perror("chdir to OLDPWD");
+	    return;
+	} else if (-1 == setenv("PWD", old, 1))
+            perror("setenv PWD to last dir");
+        else if (-1 == setenv("OLDPWD", curr, 1))
+            perror("setenv OLDPWD to current dir");
+	else { // if all works, then assign the path to pwd
+	    strcpy(pwd,curr);
+	    executed = true;
+	}
+    } else {// default/general case
+        // NOTE: the second argument may work with or without a '/' char at the end
+	unsigned numtoappend = strlen(args[1]); // all of the chars in argument
+	if (numtoappend != 1 && args[1][numtoappend-1] == '/') {// if last part of args is '/'
+		numtoappend--;
+	} // got rid of any excess / at end of new path
+
+	char* pwd = getenv("PWD"); // actual pointer
+	char curr[4096]; // copy of the path
+	if (pwd == NULL) {
+		perror("getenv PWD");
+		return;
+	}
+	strcpy(curr,pwd);
+	char old[4096];
+	strcpy(old,curr);
+	
+	if (args[1][0] == '/') {
+		cout << "root case" << endl;
+		curr[0] = 0;
+		cout << curr << endl;
+		strncpy(curr,args[1],numtoappend);
+		cout << args[1] << endl;
+		curr[numtoappend] = '\0';
+	} else {
+		// append the / to end of current path
+		strcat(curr,"/");
+		// append the argument to our current environment
+		strncat(curr,args[1],numtoappend);
+		curr[strlen(curr)] = '\0';
+	}
+	//cout << "This is the new path: " << curr << endl;
+	if (chdir(curr) != 0) {
+		perror("chdir to new path");
+		return;
+	} else if ( -1 == setenv("PWD", curr, 1))
+		perror("setenv on new path");
+	else if (-1 == setenv("OLDPWD", old, 1))
+		perror("setenv of old path");
+	else {// final assignment of path to actual pointer
+		strcpy(pwd,curr);
+		executed = true;
+	}
+    }//cout << "End cd" << endl;
+}
+
 // has the ability to execute the command that it stores in argv
 void IndivCmd::execute() {
-	
+	//cout << "Indiv execute" << endl;
 		
 	if (prev && !(prev->executed)){ // if prev didn't execute
 		return;
@@ -138,6 +332,10 @@ void IndivCmd::execute() {
 		return;
 	}
 	
+	if (strcmp(argv[0], "cd") == 0 ) {
+		cd(argv);
+		return;
+	}
 	
 	pid_t pid;
 	pid_t tpid;

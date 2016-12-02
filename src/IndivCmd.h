@@ -1,7 +1,10 @@
 #ifndef __INDIVCMD_HH__
 #define __INDIVCMD_HH__
 
-<<<<<<< HEAD
+#include <linux/limits.h>
+#include <unistd.h>
+#include <iostream>
+#include <cstdlib>
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/shm.h>
@@ -14,15 +17,11 @@ using namespace std;
 class IndivCmd : public Cmd {
 	private:
 		void test(char** args);
-=======
->>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
+		void cd(char** args);
 	protected:
 		char** argv;
 	public:
 		IndivCmd(char** argv);
-<<<<<<< HEAD
-=======
->>>>>>> a8e854f0a0b4a191f89a0a0cec9957ae84002dc1
 		void execute();
 };
 

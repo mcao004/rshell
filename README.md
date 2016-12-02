@@ -54,10 +54,6 @@ LineCmd.h
 
 Operand.h
 
-Parentheses.cpp
-
-Parentheses.h
-
 Semicolon.cpp
 
 Semicolon.h
@@ -78,8 +74,15 @@ single_command.sh
 commented_command.sh
 
 multi_command.sh
-
 exit.sh
+
+cd-test.sh
+
+cd-test.txt
+
+test_test.sh
+
+precedence_test.sh
 ```
 
 ##Instructions to run on your machine after you clone it
@@ -88,11 +91,13 @@ exit.sh
 
 2. Call `make`
 
-3. Call `./bin/rshell`
+3. `cd` into `bin`
+
+4. Call `rshell`
 
 
 ##BUGS
 
 1. Sometimes executes a command twice.
 
-2. Too long of input causes seg fault.
+2. Too long of input causes seg fult.
